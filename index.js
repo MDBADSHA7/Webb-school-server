@@ -18,9 +18,20 @@ const client = new MongoClient(uri, { useNewUrlParser: true, useUnifiedTopology:
 async function run() {
     try {
         await client.connect();
-        console.log('Database Connected');
+        const webBlogsCollection = client.db('webBlogs').collection('service');
+
+
+        app.get('/service', async (req, res) => {
+            const query = {};
+            const cursor = serviceCollection.find(query);
+            const services = await cursor.toArray();
+            res.send(services);
+        });
+
+
     }
     finally {
+
 
     }
 }
