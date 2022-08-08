@@ -46,7 +46,6 @@ async function run() {
       res.send(courses);
     });
     // courses -End
-    console.log("Database Connected");
   } finally {
   }
 }
