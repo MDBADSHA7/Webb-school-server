@@ -20,7 +20,7 @@ async function run() {
         const AcadamicBookCollection = client.db('Bookstore').collection('AcadamicBook');
 
         //Skill Bookstore for this code...
-        const SkillBookCollection = client.db('Bookstore').collection('SkillBooks');
+        const SkillBooksCollection = client.db('Bookstore').collection('SkillBooks');
 
 
         //===============Bookstore/AcadamicBooks for this code started-========
@@ -34,7 +34,9 @@ async function run() {
 
         app.get('/SkillBooks', async (req, res) => {
             const query ={};
-            const cursor = skillBooksCollection.find(query);
+            const cursor = SkillBooksCollection.find(query);
+            const SkillBooks = await cursor.toArray();
+            res.send(SkillBooks);
         })
 
 
