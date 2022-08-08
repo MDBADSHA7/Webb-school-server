@@ -16,9 +16,10 @@ const client = new MongoClient(uri, { useNewUrlParser: true, useUnifiedTopology:
 async function run() {
     try {
         await client.connect();
-        //Acadamic Bookstore for this
+        //Acadamic Bookstore for this code ..
         const AcadamicBookCollection = client.db('Bookstore').collection('AcadamicBook');
-        //Acadamic Bookstore for this
+        
+        //Skill Bookstore for this code...
         const SkillBookCollection = client.db('Bookstore').collection('SkillBooks');
 
 
@@ -31,6 +32,11 @@ async function run() {
         });
         //===============Bookstore/AcadamicBooks for this code end========
 
+        app.get('/SkillBooks', async (req, res) =>{
+
+        })
+    
+    
     }
     finally {
 
