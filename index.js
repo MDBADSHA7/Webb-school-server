@@ -46,14 +46,17 @@ async function run() {
       res.send(courses);
     });
     // courses -End
-  } finally {
+  }
+  finally{
+
   }
 }
 run().catch(console.dir);
 
-app.get("/", (req, res) => {
-  res.send("Webb School website !!!!!!!");
-});
+app.get('/', (req, res) => {
+  res.send('Hello World!')
+})
+
 app.listen(port, () => {
-  console.log(`Hello everyone ${port}`);
-});
+  console.log(`Example app listening on port ${port}`)
+})
