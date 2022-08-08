@@ -27,7 +27,7 @@ async function run() {
 run().catch(console.dir);
 
 app.get('/', (req, res) => {
-    res.send('Webb School website !!!!!!!')
+    res.send('Webb School...')
 })
 app.listen(port, () => {
     console.log(`Hello everyone ${port}`)
