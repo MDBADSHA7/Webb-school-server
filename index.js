@@ -25,6 +25,7 @@ async function run() {
     const languageCollection = client.db("courses").collection("language");
     const admissionCollection = client.db("courses").collection("admission");
     const jobCollection = client.db("courses").collection("job");
+    const playCollection = client.db("Videos").collection("courseplaylist");
 
     // courses -Start
     app.get("/language", async (req, res) => {
@@ -46,6 +47,12 @@ async function run() {
       res.send(courses);
     });
     // courses -End
+    app.get("/videos", async (req, res) => {
+      const query = {};
+      const cursor = playCollection.find(query);
+      const videos = await cursor.toArray();
+      res.send(videos);
+    });
   }
   finally{
 
