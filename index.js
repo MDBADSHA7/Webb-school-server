@@ -17,13 +17,15 @@ async function run() {
     try {
         await client.connect();
         //Acadamic Bookstore for this
-        const BookstoreCollection = client.db('Bookstore').collection('AcadamicBook');
+        const AcadamicBookCollection = client.db('Bookstore').collection('AcadamicBook');
+        //Acadamic Bookstore for this
+        const SkillBookCollection = client.db('Bookstore').collection('SkillBooks');
 
 
         //===============Bookstore/AcadamicBooks for this code started-========
         app.get('/AcadamicBook', async (req, res) => {
             const query = {};
-            const cursor = BookstoreCollection.find(query);
+            const cursor =AcadamicBookCollection.find(query);
             const AcadamicBook = await cursor.toArray();
             res.send(AcadamicBook);
         });
