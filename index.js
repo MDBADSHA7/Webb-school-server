@@ -16,7 +16,16 @@ const client = new MongoClient(uri, { useNewUrlParser: true, useUnifiedTopology:
 async function run() {
     try {
         await client.connect();
+        //Acadamic Bookstore for this
         const BookstoreCollection = client.db('Bookstore').collection('AcadamicBook'); 
+
+
+
+
+        app.get('/AcadamicBook', async (req, res) => {
+            const query = {};
+
+        });
     }
     finally {
 
