@@ -31,14 +31,15 @@ async function run() {
             res.send(AcadamicBook);
         });
         //===============Bookstore/AcadamicBooks for this code end========
-
+       
+        //===============Bookstore/SkillBooksfor this code started-========
         app.get('/SkillBooks', async (req, res) => {
-            const query ={};
+            const query = {};
             const cursor = SkillBooksCollection.find(query);
             const SkillBooks = await cursor.toArray();
             res.send(SkillBooks);
         })
-
+        //===============Bookstore/SkillBooks for this code end========
 
     }
     finally {
