@@ -12,7 +12,7 @@ app.use(express.json());
 //MongoDB Connect
 
 const uri = `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASSWORD}@cluster0.lqv7isf.mongodb.net/?retryWrites=true&w=majority`;
-console.log(uri);
+
 const client = new MongoClient(uri, {
   useNewUrlParser: true,
   useUnifiedTopology: true,
@@ -20,12 +20,26 @@ const client = new MongoClient(uri, {
 });
 
 async function run() {
-  try {
-    await client.connect();
-    const languageCollection = client.db("courses").collection("language");
-    const admissionCollection = client.db("courses").collection("admission");
-    const jobCollection = client.db("courses").collection("job");
-    const playCollection = client.db("Videos").collection("courseplaylist");
+
+    try {
+      
+
+        await client.connect();
+        const languageCollection = client.db("courses").collection("language");
+        const admissionCollection = client.db("courses").collection("admission");
+        const jobCollection = client.db("courses").collection("job");
+        const playCollection = client.db("Videos").collection("courseplaylist");
+        const webBlogsCollection = client.db('webBlogs').collection('blogs'); //blogs for this
+
+
+        //===============blogs for this code started-========
+        app.get('/blogs', async (req, res) => {
+            const query = {};
+            const cursor = webBlogsCollection.find(query);
+            const blog = await cursor.toArray();
+            res.send(blog);
+        });
+      //===============blogs for this code Ends here-========
 
     // courses -Start
     app.get("/language", async (req, res) => {
@@ -54,9 +68,11 @@ async function run() {
       res.send(videos);
     });
   }
+
   finally{
 
   }
+
 }
 run().catch(console.dir);
 
