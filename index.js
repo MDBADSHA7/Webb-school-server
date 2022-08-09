@@ -12,15 +12,15 @@ app.use(express.json());
 const uri = `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASSWORD}@cluster0.lqv7isf.mongodb.net/?retryWrites=true&w=majority`;
 
 const client = new MongoClient(uri, {
-  useNewUrlParser: true,
-  useUnifiedTopology: true,
-  serverApi: ServerApiVersion.v1,
+    useNewUrlParser: true,
+    useUnifiedTopology: true,
+    serverApi: ServerApiVersion.v1,
 });
 
 async function run() {
-  
+
     try {
-      
+
 
         await client.connect();
         const languageCollection = client.db("courses").collection("language");
@@ -40,7 +40,7 @@ async function run() {
             const blog = await cursor.toArray();
             res.send(blog);
         });
-      //===============blogs for this code Ends here-========
+        //===============blogs for this code Ends here-========
 
 
         //===============Bookstore/AcadamicBooks for this code started-========
@@ -51,7 +51,7 @@ async function run() {
             res.send(AcadamicBook);
         });
         //===============Bookstore/AcadamicBooks for this code end========
-       
+
         //===============Bookstore/SkillBooksfor this code started-========
         app.get('/SkillBooks', async (req, res) => {
             const query = {};
@@ -62,45 +62,45 @@ async function run() {
         //===============Bookstore/SkillBooks for this code end========
 
 
-    // courses -Start
-    app.get("/language", async (req, res) => {
-      const query = {};
-      const cursor = languageCollection.find(query);
-      const courses = await cursor.toArray();
-      res.send(courses);
-    });
-    app.get("/admission", async (req, res) => {
-      const query = {};
-      const cursor = admissionCollection.find(query);
-      const courses = await cursor.toArray();
-      res.send(courses);
-    });
-    app.get("/job", async (req, res) => {
-      const query = {};
-      const cursor = jobCollection.find(query);
-      const courses = await cursor.toArray();
-      res.send(courses);
-    });
-    // courses -End
-    app.get("/videos", async (req, res) => {
-      const query = {};
-      const cursor = playCollection.find(query);
-      const videos = await cursor.toArray();
-      res.send(videos);
-    });
-  }
+        // courses -Start
+        app.get("/language", async (req, res) => {
+            const query = {};
+            const cursor = languageCollection.find(query);
+            const courses = await cursor.toArray();
+            res.send(courses);
+        });
+        app.get("/admission", async (req, res) => {
+            const query = {};
+            const cursor = admissionCollection.find(query);
+            const courses = await cursor.toArray();
+            res.send(courses);
+        });
+        app.get("/job", async (req, res) => {
+            const query = {};
+            const cursor = jobCollection.find(query);
+            const courses = await cursor.toArray();
+            res.send(courses);
+        });
+        // courses -End
+        app.get("/videos", async (req, res) => {
+            const query = {};
+            const cursor = playCollection.find(query);
+            const videos = await cursor.toArray();
+            res.send(videos);
+        });
+    }
 
-  finally{
+    finally {
 
-  }
+    }
 
 }
 run().catch(console.dir);
 
 app.get('/', (req, res) => {
-  res.send('Hello World!')
+    res.send('Hello World!')
 })
 
 app.listen(port, () => {
-  console.log(`Example app listening on port ${port}`)
+    console.log(`Example app listening on port ${port}`)
 })
