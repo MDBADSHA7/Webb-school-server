@@ -1,5 +1,6 @@
 const express = require("express");
 const cors = require("cors");
+const jwt = require('jsonwebtoken');
 require("dotenv").config();
 const { MongoClient, ServerApiVersion } = require("mongodb");
 const app = express();
@@ -25,6 +26,17 @@ async function run() {
         const admissionCollection = client.db("courses").collection("admission");
         const jobCollection = client.db("courses").collection("job");
         const playCollection = client.db("Videos").collection("courseplaylist");
+
+        //JWT Implementation Start
+        app.post('/login', async (req, res) => {
+            const user = req.body;
+            const accessToken = jwt.sign(user, process.env.ACCESS_TOKEN_SECRET, {
+                expiresIn: '1d'
+            });
+            res.send(accessToken);
+        })
+
+        //JWT Implementation End
 
         // courses -Start
         app.get("/language", async (req, res) => {
