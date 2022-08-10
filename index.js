@@ -28,13 +28,14 @@ async function run() {
         const playCollection = client.db("Videos").collection("courseplaylist");
 
         //JWT Implementation Start
-        app.post('/login', async (req, res) => {
-            const user = req.body;
-            const accessToken = jwt.sign(user, process.env.ACCESS_TOKEN_SECRET, {
-                expiresIn: '1d'
-            });
-            res.send(accessToken);
-        })
+        // app.post('/login', async (req, res) => {
+        //     const user = req.body;
+        //     // console.log(user);
+        //     const accessToken = jwt.sign(user, process.env.ACCESS_TOKEN_SECRET, {
+        //         expiresIn: '1d'
+        //     });
+        //     res.send({ accessToken });
+        // })
 
         //JWT Implementation End
 
@@ -72,7 +73,7 @@ async function run() {
 run().catch(console.dir);
 
 app.get('/', (req, res) => {
-    res.send('Hello World!')
+    res.send('Welcome to Webb-School website!')
 })
 
 app.listen(port, () => {
