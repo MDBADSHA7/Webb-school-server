@@ -1,7 +1,7 @@
 const express = require("express");
 const cors = require("cors");
 require("dotenv").config();
-const { MongoClient, ServerApiVersion } = require("mongodb");
+const { MongoClient, ServerApiVersion, ObjectId } = require("mongodb");
 const app = express();
 const port = process.env.PORT || 5000;
 //Midddle Ware
@@ -18,7 +18,6 @@ const client = new MongoClient(uri, {
 });
 
 async function run() {
-
     try {
 
 
@@ -88,6 +87,20 @@ async function run() {
             const videos = await cursor.toArray();
             res.send(videos);
         });
+        // get language id 
+        app.get('/language/:id', async (req, res) => {
+          const id = req.params.id;
+          const query = { _id: ObjectId(id) };
+          const courses = await languageCollection.findOne(query);
+          res.send(courses);
+      });
+      // delete language courses 
+      app.delete('/language/:id', async (req, res) => {
+        const id = req.params.id;
+        const query = { _id: ObjectId(id) };
+        const result = await languageCollection.deleteOne(query);
+        res.send(result);
+    });
     }
 
     finally {
