@@ -101,6 +101,34 @@ async function run() {
         const result = await languageCollection.deleteOne(query);
         res.send(result);
     });
+        // get amission id 
+        app.get('/admission/:id', async (req, res) => {
+          const id = req.params.id;
+          const query = { _id: ObjectId(id) };
+          const courses = await admissionCollection.findOne(query);
+          res.send(courses);
+      });
+      // delete admission courses 
+      app.delete('/admission/:id', async (req, res) => {
+        const id = req.params.id;
+        const query = { _id: ObjectId(id) };
+        const result = await admissionCollection.deleteOne(query);
+        res.send(result);
+    });
+        // get job id 
+        app.get('/job/:id', async (req, res) => {
+          const id = req.params.id;
+          const query = { _id: ObjectId(id) };
+          const courses = await jobCollection.findOne(query);
+          res.send(courses);
+      });
+      // delete admission courses 
+      app.delete('/job/:id', async (req, res) => {
+        const id = req.params.id;
+        const query = { _id: ObjectId(id) };
+        const result = await jobCollection.deleteOne(query);
+        res.send(result);
+    });
     }
 
     finally {
