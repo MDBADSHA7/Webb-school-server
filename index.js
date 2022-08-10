@@ -44,7 +44,7 @@ async function run() {
         app.post('/blogs', async (req,res) => {
           const addblogs = req.body;
           const result = await webBlogsCollection.insertOne(addblogs);
-          res.send(result);
+         
 
         })
         
