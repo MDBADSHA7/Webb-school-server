@@ -111,11 +111,7 @@ async function run() {
 run().catch(console.dir);
 
 app.get('/', (req, res) => {
-<<<<<<< HEAD
     res.send('Webb School......')
-=======
-    res.send('Hello World!')
->>>>>>> 107bfbb0cbe42b4561dde1bb82f0a14f7cd2c5ae
 })
 
 app.listen(port, () => {
