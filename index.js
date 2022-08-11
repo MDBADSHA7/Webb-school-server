@@ -1,6 +1,8 @@
 const express = require("express");
 const cors = require("cors");
+//JWT Start
 const jwt = require('jsonwebtoken');
+//JWT End
 require("dotenv").config();
 const { MongoClient, ServerApiVersion, ObjectId } = require("mongodb");
 const app = express();
@@ -20,29 +22,37 @@ const client = new MongoClient(uri, {
 
 async function run() {
     try {
+
         await client.connect();
         const languageCollection = client.db("courses").collection("language");
         const admissionCollection = client.db("courses").collection("admission");
         const jobCollection = client.db("courses").collection("job");
         const playCollection = client.db("Videos").collection("courseplaylist");
-
-        //JWT Implementation Start
-        // app.post('/login', async (req, res) => {
-        //     const user = req.body;
-        //     // console.log(user);
-        //     const accessToken = jwt.sign(user, process.env.ACCESS_TOKEN_SECRET, {
-        //         expiresIn: '1d'
-        //     });
-        //     res.send({ accessToken });
-        // })
-
-        //JWT Implementation End
-
         const webBlogsCollection = client.db('webBlogs').collection('blogs'); //blogs for this
         //Acadamic Bookstore for this code ..
         const AcadamicBookCollection = client.db('Bookstore').collection('AcadamicBook');
         //Skill Bookstore for this code...
         const SkillBooksCollection = client.db('Bookstore').collection('SkillBooks');
+        //User Collection for JWT
+        const userCollection = client.db('user_info').collection('users');
+
+        //JWT Verification Start
+        app.put('/user/:email', async (req, res) => {
+            const email = req.params.email;
+            const user = req.body;
+            const filter = { email: email };
+            const options = { upsert: true };
+            const updateDoc = {
+                $set: user,
+            };
+            const result = await userCollection.updateOne(filter, updateDoc, options);
+            const token = jwt.sign({ email: email }, process.env.ACCESS_TOKEN_SECRET, {
+                expiresIn: '1h'
+            })
+            res.send({ result, token });
+        })
+
+        //JWT Verification End
 
         //===============blogs for this code started-========
         app.get('/blogs', async (req, res) => {
@@ -71,6 +81,7 @@ async function run() {
             res.send(SkillBooks);
         })
         //===============Bookstore/SkillBooks for this code end========
+
 
         // courses -Start
         app.get("/language", async (req, res) => {
@@ -145,14 +156,14 @@ async function run() {
     finally {
 
     }
-    run().catch(console.dir);
 
-    app.get('/', (req, res) => {
-        res.send('Welcome to Webb-School website!')
-        res.send('Webb School......')
-    })
-
-    app.listen(port, () => {
-        console.log(`Example app listening on port ${port}`)
-    })
 }
+run().catch(console.dir);
+
+app.get('/', (req, res) => {
+    res.send('Webb School......')
+})
+
+app.listen(port, () => {
+    console.log(`Example app listening on port ${port}`)
+})
