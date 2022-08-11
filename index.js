@@ -30,9 +30,13 @@ async function run() {
       .db("Bookstore")
       .collection("AcadamicBook");
     //Skill Bookstore for this code...
+
+    const SkillBooksCollection = client.db('Bookstore').collection('SkillBooks');
+    const LiveCollection = client.db('Live').collection('lives');
     const SkillBooksCollection = client
       .db("Bookstore")
       .collection("SkillBooks");
+
 
     //===============blogs for this code started-========
     app.get("/blogs", async (req, res) => {
@@ -135,6 +139,24 @@ async function run() {
       const result = await jobCollection.deleteOne(query);
       res.send(result);
     });
+
+
+    /* lIve Class  */
+
+    app.post('/lives', async (req, res) => {
+      const addLive = req.body;
+      const result = await LiveCollection.insertOne(addLive);
+      res.send(result);
+    })
+    app.get('/Lives', async (req, res) => {
+      const query = {};
+      const cursor = LiveCollection.find(query);
+      const live = await cursor.toArray();
+      res.send(live);
+    });
+  }
+
+  finally {
 
     // post language course
     app.post("/language", async (req, res) => {
