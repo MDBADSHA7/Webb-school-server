@@ -136,6 +136,18 @@ async function run() {
         const result = await languageCollection.insertOne(addlanguage);
         res.send(result);
      });
+    // post job course 
+    app.post('/job', async (req, res) => {
+        const addjob = req.body;
+        const result = await jobCollection.insertOne(addjob);
+        res.send(result);
+     });
+    // post admission course 
+    app.post('/admission', async (req, res) => {
+        const addadmission = req.body;
+        const result = await admissionCollection.insertOne(addadmission);
+        res.send(result);
+     });
     }
 
     finally {
