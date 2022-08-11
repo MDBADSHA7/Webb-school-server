@@ -40,7 +40,6 @@ async function run() {
       const blog = await cursor.toArray();
       res.send(blog);
     });
-   
     app.post('/blogs', async (req, res) => {
       const addblogs = req.body;
       const result = await webBlogsCollection.insertOne(addblogs);
@@ -163,6 +162,7 @@ app.get('/', (req, res) => {
 app.listen(port, () => {
   console.log(`Example app listening on port ${port}`)
 })
+
 
 
 
