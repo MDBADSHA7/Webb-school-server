@@ -59,6 +59,13 @@ async function run() {
       const AcadamicBook = await cursor.toArray();
       res.send(AcadamicBook);
     });
+    //Acadamic books add
+    app.post('/AcadamicBook', async (req, res) => {
+        const addAcadamicBook = req.body;
+        const result = await AcadamicBookCollection.insertOne(addAcadamicBook);
+        res.send(result);
+  
+      })
     //===============Bookstore/AcadamicBooks for this code end========
 
     //===============Bookstore/SkillBooksfor this code started-========
