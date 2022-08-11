@@ -61,6 +61,15 @@ async function run() {
             const blog = await cursor.toArray();
             res.send(blog);
         });
+        app.post('/blogs', async (req, res) => {
+            const addblogs = req.body;
+            const result = await webBlogsCollection.insertOne(addblogs);
+            res.send(result);
+
+        })
+
+
+
         //===============blogs for this code Ends here-========
 
 
@@ -71,6 +80,13 @@ async function run() {
             const AcadamicBook = await cursor.toArray();
             res.send(AcadamicBook);
         });
+        //Acadamic books add
+        app.post('/AcadamicBook', async (req, res) => {
+            const addAcadamicBook = req.body;
+            const result = await AcadamicBookCollection.insertOne(addAcadamicBook);
+            res.send(result);
+
+        })
         //===============Bookstore/AcadamicBooks for this code end========
 
         //===============Bookstore/SkillBooksfor this code started-========
@@ -167,3 +183,5 @@ app.get('/', (req, res) => {
 app.listen(port, () => {
     console.log(`Example app listening on port ${port}`)
 })
+
+
