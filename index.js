@@ -129,6 +129,13 @@ async function run() {
         const result = await jobCollection.deleteOne(query);
         res.send(result);
     });
+
+    // post language course 
+    app.post('/language', async (req, res) => {
+        const addlanguage = req.body;
+        const result = await languageCollection.insertOne(addlanguage);
+        res.send(result);
+     });
     }
 
     finally {
