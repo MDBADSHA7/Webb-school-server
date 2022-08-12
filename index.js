@@ -75,6 +75,13 @@ async function run() {
       const SkillBooks = await cursor.toArray();
       res.send(SkillBooks);
     })
+     //skill books add
+     app.post('/SkillBooks', async (req, res) => {
+      const addSkillBook = req.body;
+      const result = await SkillBooksCollection.insertOne(addSkillBook);
+      res.send(result);
+
+    })
     //===============Bookstore/SkillBooks for this code end========
 
 
