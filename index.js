@@ -114,6 +114,18 @@ async function run() {
       const users = await usersCollection.find({}).toArray();
       res.send(users);
     });
+    app.get("/user/:id", verifyAccess, async (req, res) => {
+      const id = req.params.id;
+      const query = { _id: ObjectId(id) };
+      const courses = await usersCollection.findOne(query);
+      res.send(courses);
+    });
+    app.delete("/user/:id", verifyAccess, async (req, res) => {
+      const id = req.params.id;
+      const query = { _id: ObjectId(id) };
+      const result = await usersCollection.deleteOne(query);
+      res.send(result);
+    });
 
     app.put("/user-role", verifyAccess, verifyAdmin, async (req, res) => {
       const { id } = req.query;
