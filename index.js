@@ -1,11 +1,17 @@
 const express = require("express");
 const cors = require("cors");
+<<<<<<< HEAD
+=======
 //JWT Start
 const jwt = require('jsonwebtoken');
 //JWT End
 require("dotenv").config();
 const { MongoClient, ServerApiVersion, ObjectId } = require("mongodb");
+>>>>>>> 264275d78a4bdfc04a6c2bc27e2202d930e6e352
 const app = express();
+require("dotenv").config();
+const jwt = require("jsonwebtoken");
+const { MongoClient, ServerApiVersion, ObjectId } = require("mongodb");
 const port = process.env.PORT || 5000;
 //Midddle Ware
 app.use(cors());
@@ -20,7 +26,41 @@ const client = new MongoClient(uri, {
     serverApi: ServerApiVersion.v1,
 });
 
+const verifyAccess = (req, res, next) => {
+  const authorizationToken = req.headers.authorization;
+  if (!authorizationToken) {
+    return res.status(401).send({ message: "UnAuthorized access" });
+  }
+  const token = authorizationToken.split(" ")[1];
+  jwt.verify(token, process.env.ACCESS_TOKEN_SECRET, (err, decoded) => {
+    if (err) {
+      return res.status(403).send({ message: "Forbidden access" });
+    }
+    req.decoded = decoded;
+    next();
+  });
+};
+
 async function run() {
+<<<<<<< HEAD
+  try {
+    await client.connect();
+    const languageCollection = client.db("courses").collection("language");
+    const admissionCollection = client.db("courses").collection("admission");
+    const jobCollection = client.db("courses").collection("job");
+    const playCollection = client.db("Videos").collection("courseplaylist");
+    const usersCollection = client.db("users").collection("user");
+    const webBlogsCollection = client.db("webBlogs").collection("blogs");
+    //Acadamic Bookstore for this code ..
+    const AcadamicBookCollection = client
+      .db("Bookstore")
+      .collection("AcadamicBook");
+    //Skill Bookstore for this code...
+    const SkillBooksCollection = client
+      .db("Bookstore")
+      .collection("SkillBooks");
+    const LiveCollection = client.db("Live").collection("lives");
+=======
     try {
 
         await client.connect();
@@ -67,7 +107,18 @@ async function run() {
             res.send(result);
 
         })
+>>>>>>> 264275d78a4bdfc04a6c2bc27e2202d930e6e352
 
+    const verifyAdmin = async (req, res, next) => {
+      const requester = req.decoded.email;
+      const requesterAccount = await usersCollection.findOne({ email: requester });
+      if (requesterAccount.role === 'admin') {
+        next();
+      }
+      else {
+        res.status(403).send({ message: 'forbidden' });
+      }
+    }
 
 
         //===============blogs for this code Ends here-========
@@ -91,6 +142,158 @@ async function run() {
       const cursor = SkillBooksCollection.find(query);
       const SkillBooks = await cursor.toArray();
       res.send(SkillBooks);
+<<<<<<< HEAD
+    });
+    //===============Bookstore/SkillBooks for this code end========
+
+    app.put("/user", async (req, res) => {
+      const { email, name } = req.body;
+      const filter = { email: email };
+      const options = { upsert: true };
+      const updateDoc = {
+        $set: {
+          name: name,
+          email: email,
+        },
+      };
+      const result = await usersCollection.updateOne(filter, updateDoc, options);
+      const token = jwt.sign({ email: email }, process.env.ACCESS_TOKEN_SECRET);
+      res.send({ success: true, result, token });
+    });
+    app.get("/user", verifyAccess, async (req, res) => {
+      const users = await usersCollection.find({}).toArray();
+      res.send(users);
+    });
+
+    app.put("/user-role", verifyAccess, verifyAdmin, async (req, res) => {
+      const { id } = req.query;
+      const { role } = req.body;
+      const filter = { _id: ObjectId(id) };
+      const options = { upsert: true };
+      const updateDoc = {
+        $set: {
+          role: role,
+        },
+      };
+      const result = await usersCollection.updateOne(
+        filter,
+        updateDoc,
+        options
+      );
+      res.send({ success: true, result });
+    });
+
+    app.get("/user-role", async (req, res) => {
+      const { email } = req.query;
+      const query = { email: email };
+      const user = await usersCollection.findOne(query);
+      res.send(user);
+    });
+
+    // courses -Start
+    app.get("/language", async (req, res) => {
+      const query = {};
+      const cursor = languageCollection.find(query);
+      const courses = await cursor.toArray();
+      res.send(courses);
+    });
+    app.get("/admission", async (req, res) => {
+      const query = {};
+      const cursor = admissionCollection.find(query);
+      const courses = await cursor.toArray();
+      res.send(courses);
+    });
+    app.get("/job", async (req, res) => {
+      const query = {};
+      const cursor = jobCollection.find(query);
+      const courses = await cursor.toArray();
+      res.send(courses);
+    });
+    // courses -End
+    app.get("/videos", async (req, res) => {
+      const query = {};
+      const cursor = playCollection.find(query);
+      const videos = await cursor.toArray();
+      res.send(videos);
+    });
+    // get language id
+    app.get("/language/:id", async (req, res) => {
+      const id = req.params.id;
+      const query = { _id: ObjectId(id) };
+      const courses = await languageCollection.findOne(query);
+      res.send(courses);
+    });
+    // delete language courses
+    app.delete("/language/:id", async (req, res) => {
+      const id = req.params.id;
+      const query = { _id: ObjectId(id) };
+      const result = await languageCollection.deleteOne(query);
+      res.send(result);
+    });
+    // get amission id
+    app.get("/admission/:id", async (req, res) => {
+      const id = req.params.id;
+      const query = { _id: ObjectId(id) };
+      const courses = await admissionCollection.findOne(query);
+      res.send(courses);
+    });
+    // delete admission courses
+    app.delete("/admission/:id", async (req, res) => {
+      const id = req.params.id;
+      const query = { _id: ObjectId(id) };
+      const result = await admissionCollection.deleteOne(query);
+      res.send(result);
+    });
+    // get job id
+    app.get("/job/:id", async (req, res) => {
+      const id = req.params.id;
+      const query = { _id: ObjectId(id) };
+      const courses = await jobCollection.findOne(query);
+      res.send(courses);
+    });
+    // delete job courses
+    app.delete("/job/:id", async (req, res) => {
+      const id = req.params.id;
+      const query = { _id: ObjectId(id) };
+      const result = await jobCollection.deleteOne(query);
+      res.send(result);
+    });
+
+    // post language course
+    app.post("/language", async (req, res) => {
+      const addlanguage = req.body;
+      const result = await languageCollection.insertOne(addlanguage);
+      res.send(result);
+    });
+    // post job course
+    app.post("/job", async (req, res) => {
+      const addjob = req.body;
+      const result = await jobCollection.insertOne(addjob);
+      res.send(result);
+    });
+    // post admission course
+    app.post("/admission", async (req, res) => {
+      const addadmission = req.body;
+      const result = await admissionCollection.insertOne(addadmission);
+      res.send(result);
+    });
+
+    /* lIve Class  */
+
+    app.post("/lives", async (req, res) => {
+      const addLive = req.body;
+      const result = await LiveCollection.insertOne(addLive);
+      res.send(result);
+    });
+    app.get("/Lives", async (req, res) => {
+      const query = {};
+      const cursor = LiveCollection.find(query);
+      const live = await cursor.toArray();
+      res.send(live);
+    });
+  } finally {
+  }
+=======
     })
      //skill books add
      app.post('/SkillBooks', async (req, res) => {
@@ -187,6 +390,7 @@ async function run() {
 
     }
 
+>>>>>>> 264275d78a4bdfc04a6c2bc27e2202d930e6e352
 }
 run().catch(console.dir);
 
