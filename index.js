@@ -1,6 +1,8 @@
-
 const express = require("express");
 const cors = require("cors");
+//JWT Start
+const jwt = require('jsonwebtoken');
+//JWT End
 require("dotenv").config();
 const { MongoClient, ServerApiVersion, ObjectId } = require("mongodb");
 const app = express();
@@ -13,61 +15,76 @@ app.use(express.json());
 const uri = `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASSWORD}@cluster0.lqv7isf.mongodb.net/?retryWrites=true&w=majority`;
 
 const client = new MongoClient(uri, {
-  useNewUrlParser: true,
-  useUnifiedTopology: true,
-  serverApi: ServerApiVersion.v1,
+    useNewUrlParser: true,
+    useUnifiedTopology: true,
+    serverApi: ServerApiVersion.v1,
 });
 
 async function run() {
-  try {
+    try {
+
+        await client.connect();
+        const languageCollection = client.db("courses").collection("language");
+        const admissionCollection = client.db("courses").collection("admission");
+        const jobCollection = client.db("courses").collection("job");
+        const playCollection = client.db("Videos").collection("courseplaylist");
+        const webBlogsCollection = client.db('webBlogs').collection('blogs'); //blogs for this
+        //Acadamic Bookstore for this code ..
+        const AcadamicBookCollection = client.db('Bookstore').collection('AcadamicBook');
+        //Skill Bookstore for this code...
+        const SkillBooksCollection = client.db('Bookstore').collection('SkillBooks');
+        //User Collection for JWT
+        const userCollection = client.db('user_info').collection('users');
+
+        //JWT Verification Start
+        app.put('/user/:email', async (req, res) => {
+            const email = req.params.email;
+            const user = req.body;
+            const filter = { email: email };
+            const options = { upsert: true };
+            const updateDoc = {
+                $set: user,
+            };
+            const result = await userCollection.updateOne(filter, updateDoc, options);
+            const token = jwt.sign({ email: email }, process.env.ACCESS_TOKEN_SECRET, {
+                expiresIn: '1h'
+            })
+            res.send({ result, token });
+        })
+
+        //JWT Verification End
+
+        //===============blogs for this code started-========
+        app.get('/blogs', async (req, res) => {
+            const query = {};
+            const cursor = webBlogsCollection.find(query);
+            const blog = await cursor.toArray();
+            res.send(blog);
+        });
+        app.post('/blogs', async (req, res) => {
+            const addblogs = req.body;
+            const result = await webBlogsCollection.insertOne(addblogs);
+            res.send(result);
+
+        })
 
 
-    await client.connect();
-    const languageCollection = client.db("courses").collection("language");
-    const admissionCollection = client.db("courses").collection("admission");
-    const jobCollection = client.db("courses").collection("job");
-    const playCollection = client.db("Videos").collection("courseplaylist");
-    const webBlogsCollection = client.db('webBlogs').collection('blogs'); //blogs for this
-    //Acadamic Bookstore for this code ..
-    const AcadamicBookCollection = client.db('Bookstore').collection('AcadamicBook');
-    //Skill Bookstore for this code...
-    const SkillBooksCollection = client.db('Bookstore').collection('SkillBooks');
 
-    //===============blogs for this code started-========
-    app.get('/blogs', async (req, res) => {
-      const query = {};
-      const cursor = webBlogsCollection.find(query);
-      const blog = await cursor.toArray();
-      res.send(blog);
-    });
-    app.post('/blogs', async (req, res) => {
-      const addblogs = req.body;
-      const result = await webBlogsCollection.insertOne(addblogs);
-      res.send(result);
-
-    })
+        //===============blogs for this code Ends here-========
 
 
-
-    //===============blogs for this code Ends here-========
-
-
-    //===============Bookstore/AcadamicBooks for this code started-========
-    app.get('/AcadamicBook', async (req, res) => {
-      const query = {};
-      const cursor = AcadamicBookCollection.find(query);
-      const AcadamicBook = await cursor.toArray();
-      res.send(AcadamicBook);
-    });
-    //Acadamic books add
-    app.post('/AcadamicBook', async (req, res) => {
-        const addAcadamicBook = req.body;
-        const result = await AcadamicBookCollection.insertOne(addAcadamicBook);
-        res.send(result);
-  
-      })
-    //===============Bookstore/AcadamicBooks for this code end========
-
+        //===============Bookstore/AcadamicBooks for this code started-========
+        app.get('/AcadamicBook', async (req, res) => {
+            const query = {};
+            const cursor = AcadamicBookCollection.find(query);
+            const AcadamicBook = await cursor.toArray();
+            res.send(AcadamicBook);
+        });
+        //Acadamic books add
+        app.post('/AcadamicBook', async (req, res) => {
+            const addAcadamicBook = req.body;
+            const result = await AcadamicBookCollection.insertOne(addAcadamicBook);
+            res.send(result);
     //===============Bookstore/SkillBooksfor this code started-========
     app.get('/SkillBooks', async (req, res) => {
       const query = {};
@@ -75,94 +92,110 @@ async function run() {
       const SkillBooks = await cursor.toArray();
       res.send(SkillBooks);
     })
+     //skill books add
+     app.post('/SkillBooks', async (req, res) => {
+      const addSkillBook = req.body;
+      const result = await SkillBooksCollection.insertOne(addSkillBook);
+      res.send(result);
+
+    })
     //===============Bookstore/SkillBooks for this code end========
+        })
+        //===============Bookstore/AcadamicBooks for this code end========
+
+        //===============Bookstore/SkillBooksfor this code started-========
+        app.get('/SkillBooks', async (req, res) => {
+            const query = {};
+            const cursor = SkillBooksCollection.find(query);
+            const SkillBooks = await cursor.toArray();
+            res.send(SkillBooks);
+        })
+        //===============Bookstore/SkillBooks for this code end========
 
 
-    // courses -Start
-    app.get("/language", async (req, res) => {
-      const query = {};
-      const cursor = languageCollection.find(query);
-      const courses = await cursor.toArray();
-      res.send(courses);
-    });
-    app.get("/admission", async (req, res) => {
-      const query = {};
-      const cursor = admissionCollection.find(query);
-      const courses = await cursor.toArray();
-      res.send(courses);
-    });
-    app.get("/job", async (req, res) => {
-      const query = {};
-      const cursor = jobCollection.find(query);
-      const courses = await cursor.toArray();
-      res.send(courses);
-    });
-    // courses -End
-    app.get("/videos", async (req, res) => {
-      const query = {};
-      const cursor = playCollection.find(query);
-      const videos = await cursor.toArray();
-      res.send(videos);
-    });
-    // get language id 
-    app.get('/language/:id', async (req, res) => {
-      const id = req.params.id;
-      const query = { _id: ObjectId(id) };
-      const courses = await languageCollection.findOne(query);
-      res.send(courses);
-    });
-    // delete language courses 
-    app.delete('/language/:id', async (req, res) => {
-      const id = req.params.id;
-      const query = { _id: ObjectId(id) };
-      const result = await languageCollection.deleteOne(query);
-      res.send(result);
-    });
-    // get amission id 
-    app.get('/admission/:id', async (req, res) => {
-      const id = req.params.id;
-      const query = { _id: ObjectId(id) };
-      const courses = await admissionCollection.findOne(query);
-      res.send(courses);
-    });
-    // delete admission courses 
-    app.delete('/admission/:id', async (req, res) => {
-      const id = req.params.id;
-      const query = { _id: ObjectId(id) };
-      const result = await admissionCollection.deleteOne(query);
-      res.send(result);
-    });
-    // get job id 
-    app.get('/job/:id', async (req, res) => {
-      const id = req.params.id;
-      const query = { _id: ObjectId(id) };
-      const courses = await jobCollection.findOne(query);
-      res.send(courses);
-    });
-    // delete admission courses 
-    app.delete('/job/:id', async (req, res) => {
-      const id = req.params.id;
-      const query = { _id: ObjectId(id) };
-      const result = await jobCollection.deleteOne(query);
-      res.send(result);
-    });
-  }
+        // courses -Start
+        app.get("/language", async (req, res) => {
+            const query = {};
+            const cursor = languageCollection.find(query);
+            const courses = await cursor.toArray();
+            res.send(courses);
+        });
+        app.get("/admission", async (req, res) => {
+            const query = {};
+            const cursor = admissionCollection.find(query);
+            const courses = await cursor.toArray();
+            res.send(courses);
+        });
+        app.get("/job", async (req, res) => {
+            const query = {};
+            const cursor = jobCollection.find(query);
+            const courses = await cursor.toArray();
+            res.send(courses);
+        });
+        // courses -End
+        app.get("/videos", async (req, res) => {
+            const query = {};
+            const cursor = playCollection.find(query);
+            const videos = await cursor.toArray();
+            res.send(videos);
+        });
+        // get language id 
+        app.get('/language/:id', async (req, res) => {
+            const id = req.params.id;
+            const query = { _id: ObjectId(id) };
+            const courses = await languageCollection.findOne(query);
+            res.send(courses);
+        });
+        // delete language courses 
+        app.delete('/language/:id', async (req, res) => {
+            const id = req.params.id;
+            const query = { _id: ObjectId(id) };
+            const result = await languageCollection.deleteOne(query);
+            res.send(result);
+        });
+        // get amission id 
+        app.get('/admission/:id', async (req, res) => {
+            const id = req.params.id;
+            const query = { _id: ObjectId(id) };
+            const courses = await admissionCollection.findOne(query);
+            res.send(courses);
+        });
+        // delete admission courses 
+        app.delete('/admission/:id', async (req, res) => {
+            const id = req.params.id;
+            const query = { _id: ObjectId(id) };
+            const result = await admissionCollection.deleteOne(query);
+            res.send(result);
+        });
+        // get job id 
+        app.get('/job/:id', async (req, res) => {
+            const id = req.params.id;
+            const query = { _id: ObjectId(id) };
+            const courses = await jobCollection.findOne(query);
+            res.send(courses);
+        });
+        // delete admission courses 
+        app.delete('/job/:id', async (req, res) => {
+            const id = req.params.id;
+            const query = { _id: ObjectId(id) };
+            const result = await jobCollection.deleteOne(query);
+            res.send(result);
+        });
+    }
 
-  finally {
+    finally {
 
-  }
+    }
 
 }
 run().catch(console.dir);
 
 app.get('/', (req, res) => {
-  res.send('Webb School......')
+    res.send('Webb School......')
 })
 
 app.listen(port, () => {
-  console.log(`Example app listening on port ${port}`)
+    console.log(`Example app listening on port ${port}`)
 })
-
-
 
 
