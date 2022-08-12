@@ -85,7 +85,21 @@ async function run() {
             const addAcadamicBook = req.body;
             const result = await AcadamicBookCollection.insertOne(addAcadamicBook);
             res.send(result);
+    //===============Bookstore/SkillBooksfor this code started-========
+    app.get('/SkillBooks', async (req, res) => {
+      const query = {};
+      const cursor = SkillBooksCollection.find(query);
+      const SkillBooks = await cursor.toArray();
+      res.send(SkillBooks);
+    })
+     //skill books add
+     app.post('/SkillBooks', async (req, res) => {
+      const addSkillBook = req.body;
+      const result = await SkillBooksCollection.insertOne(addSkillBook);
+      res.send(result);
 
+    })
+    //===============Bookstore/SkillBooks for this code end========
         })
         //===============Bookstore/AcadamicBooks for this code end========
 
