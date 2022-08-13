@@ -146,8 +146,8 @@ async function run() {
     app.get('/LiveData', async (req, res) => {
       const query = {};
       const cursor = LiveDataCollection.find(query);
-      const live = await cursor.toArray();
-      res.send(live);
+      const lives = await cursor.toArray();
+      res.send(lives);
     });
 
     app.post('/lives', async (req, res) => {
