@@ -42,6 +42,7 @@ async function run() {
     const jobCollection = client.db("courses").collection("job");
     const playCollection = client.db("Videos").collection("courseplaylist");
     const usersCollection = client.db("users").collection("user");
+    const orderCollection = client.db("Orders").collection("order");
     const webBlogsCollection = client.db("webBlogs").collection("blogs");
     //Acadamic Bookstore for this code ..
     const AcadamicBookCollection = client
@@ -259,6 +260,26 @@ async function run() {
       const cursor = LiveCollection.find(query);
       const live = await cursor.toArray();
       res.send(live);
+    });
+    app.post("/order", verifyAccess, async (req, res) => {
+      const order = req.body;
+      const result = await orderCollection.insertOne(order);
+      res.send({ success: true, result });
+    });
+    app.get("/order", verifyAccess, async (req, res) => {
+      const { email } = req.query;
+      const orders = await orderCollection.find({ userEmail: email }).toArray();
+      res.send(orders);
+    });
+    app.delete("/order", verifyAccess, async (req, res) => {
+      const { id } = req.query;
+      const query = { _id: ObjectId(id) };
+      const result = await orderCollection.deleteOne(query);
+      res.send(result);
+    });
+    app.get("/all-order", verifyAccess, verifyAdmin, async (req, res) => {
+      const orders = await orderCollection.find({}).toArray();
+      res.send(orders);
     });
   } finally {
   }
