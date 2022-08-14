@@ -3,7 +3,7 @@ const cors = require("cors");
 const app = express();
 require("dotenv").config();
 const jwt = require("jsonwebtoken");
-const { MongoClient, ServerApiVersion, ObjectId } = require("mongodb");
+const { MongoClient, ServerApiVersion, ObjectId } = require("mongodb");const stripe = require("stripe")(process.env.STRIPE_SECRET_KEY);
 const port = process.env.PORT || 5000;
 //Midddle Ware
 app.use(cors());
@@ -40,6 +40,7 @@ async function run() {
     const languageCollection = client.db("courses").collection("language");
     const admissionCollection = client.db("courses").collection("admission");
     const jobCollection = client.db("courses").collection("job");
+    const paidCourseCollection = client.db("courses").collection("paidcourse");
     const playCollection = client.db("Videos").collection("courseplaylist");
     const usersCollection = client.db("users").collection("user");
     const orderCollection = client.db("Orders").collection("order");
@@ -179,6 +180,12 @@ async function run() {
       const courses = await cursor.toArray();
       res.send(courses);
     });
+    app.get("/mycourse", async (req, res) => {
+      const query = {};
+      const cursor = paidCourseCollection.find(query);
+      const courses = await cursor.toArray();
+      res.send(courses);
+    });
     // courses -End
     app.get("/videos", async (req, res) => {
       const query = {};
@@ -247,6 +254,12 @@ async function run() {
       const result = await admissionCollection.insertOne(addadmission);
       res.send(result);
     });
+    // post paid course 
+    app.post("/mycourse", async (req, res) => {
+      const addadmission = req.body;
+      const result = await paidCourseCollection.insertOne(addadmission);
+      res.send(result);
+    });
 
     /* lIve Class  */
 
@@ -271,6 +284,27 @@ async function run() {
       const orders = await orderCollection.find({ userEmail: email }).toArray();
       res.send(orders);
     });
+    app.put("/order", verifyAccess, async (req, res) => {
+      const { orderId, transactionId } = req.body;
+      const filter = { _id: ObjectId(orderId) };
+      const options = { upsert: true };
+      const updateDoc = {
+        $set: {
+          transactionId: transactionId,
+        },
+      };
+      const result = await orderCollection.updateOne(
+        filter,
+        updateDoc,
+        options
+      );
+      res.send({ success: true, result });
+    });
+    app.get("/order/:uname", verifyAccess, async (req, res) => {
+      const { uname } = req.params;
+      const order = await orderCollection.findOne({ uname: uname });
+      res.send(order);
+    });
     app.delete("/order", verifyAccess, async (req, res) => {
       const { id } = req.query;
       const query = { _id: ObjectId(id) };
@@ -280,6 +314,20 @@ async function run() {
     app.get("/all-order", verifyAccess, verifyAdmin, async (req, res) => {
       const orders = await orderCollection.find({}).toArray();
       res.send(orders);
+    });
+    app.post("/create-payment-intent", verifyAccess, async (req, res) => {
+      const { totalAmount } = req.body;
+      const amount = totalAmount * 100;
+
+      const paymentIntent = await stripe.paymentIntents.create({
+        amount: amount,
+        currency: "usd",
+        payment_method_types: ["card"],
+      });
+
+      res.send({
+        clientSecret: paymentIntent.client_secret,
+      });
     });
   } finally {
   }
