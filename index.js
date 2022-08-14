@@ -3,15 +3,15 @@ const cors = require("cors");
 const app = express();
 require("dotenv").config();
 const jwt = require("jsonwebtoken");
-const { MongoClient, ServerApiVersion, ObjectId } = require("mongodb");
-const { query } = require("express");
+const { MongoClient, ServerApiVersion, ObjectId } = require("mongodb");const stripe = require("stripe")(process.env.STRIPE_SECRET_KEY);
 const port = process.env.PORT || 5000;
 //Midddle Ware
 app.use(cors());
 app.use(express.json());
 
 //MongoDB Connected
-const uri = `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASSWORD}@cluster0.lqv7isf.mongodb.net/?retryWrites=true&w=majority`;
+const uri = `mongodb://${process.env.DB_USER}:${process.env.DB_PASSWORD}@ac-3lraqhp-shard-00-00.lqv7isf.mongodb.net:27017,ac-3lraqhp-shard-00-01.lqv7isf.mongodb.net:27017,ac-3lraqhp-shard-00-02.lqv7isf.mongodb.net:27017/?ssl=true&replicaSet=atlas-rwv3eh-shard-0&authSource=admin&retryWrites=true&w=majority`;
+
 
 const client = new MongoClient(uri, {
   useNewUrlParser: true,
@@ -40,8 +40,10 @@ async function run() {
     const languageCollection = client.db("courses").collection("language");
     const admissionCollection = client.db("courses").collection("admission");
     const jobCollection = client.db("courses").collection("job");
+    const paidCourseCollection = client.db("courses").collection("paidcourse");
     const playCollection = client.db("Videos").collection("courseplaylist");
     const usersCollection = client.db("users").collection("user");
+    const orderCollection = client.db("Orders").collection("order");
     const webBlogsCollection = client.db("webBlogs").collection("blogs");
     //Acadamic Bookstore for this code ..
     const AcadamicBookCollection = client
@@ -88,6 +90,12 @@ async function run() {
       const AcadamicBook = await cursor.toArray();
       res.send(AcadamicBook);
     });
+
+    app.post("/AcadamicBook", async (req, res) => {
+      const addblogs = req.body;
+      const result = await AcadamicBookCollection.insertOne(addblogs);
+      res.send(result);
+    });
     //===============Bookstore/AcadamicBooks for this code end========
 
     //===============Bookstore/SkillBooksfor this code started-========
@@ -113,7 +121,7 @@ async function run() {
       const token = jwt.sign({ email: email }, process.env.ACCESS_TOKEN_SECRET);
       res.send({ success: true, result, token });
     });
-    app.get("/user",  async (req, res) => {
+    app.get("/user", verifyAccess, async (req, res) => {
       const users = await usersCollection.find({}).toArray();
       res.send(users);
     });
@@ -171,6 +179,12 @@ async function run() {
     app.get("/job", async (req, res) => {
       const query = {};
       const cursor = jobCollection.find(query);
+      const courses = await cursor.toArray();
+      res.send(courses);
+    });
+    app.get("/mycourse", async (req, res) => {
+      const query = {};
+      const cursor = paidCourseCollection.find(query);
       const courses = await cursor.toArray();
       res.send(courses);
     });
@@ -242,9 +256,15 @@ async function run() {
       const result = await admissionCollection.insertOne(addadmission);
       res.send(result);
     });
+    // post paid course 
+    app.post("/mycourse", async (req, res) => {
+      const addadmission = req.body;
+      const result = await paidCourseCollection.insertOne(addadmission);
+      res.send(result);
+    });
 
-    /* lIve Class  */
-    app.get('/LiveData', async (req, res) => {
+     /* lIve Class ---------------  */
+     app.get('/LiveData', async (req, res) => {
       const query = {};
       const cursor = LiveDataCollection.find(query);
       const lives = await cursor.toArray();
@@ -269,17 +289,70 @@ async function run() {
       const result = await LiveCollection.deleteOne(query)
       res.send(result);
     });
-
     
+/* -------------- */
+    app.post("/order", verifyAccess, async (req, res) => {
+      const order = req.body;
+      const result = await orderCollection.insertOne(order);
+      res.send({ success: true, result });
+    });
+    app.get("/order", verifyAccess, async (req, res) => {
+      const { email } = req.query;
+      const orders = await orderCollection.find({ userEmail: email }).toArray();
+      res.send(orders);
+    });
+    app.put("/order", verifyAccess, async (req, res) => {
+      const { orderId, transactionId } = req.body;
+      const filter = { _id: ObjectId(orderId) };
+      const options = { upsert: true };
+      const updateDoc = {
+        $set: {
+          transactionId: transactionId,
+        },
+      };
+      const result = await orderCollection.updateOne(
+        filter,
+        updateDoc,
+        options
+      );
+      res.send({ success: true, result });
+    });
+    app.get("/order/:uname", verifyAccess, async (req, res) => {
+      const { uname } = req.params;
+      const order = await orderCollection.findOne({ uname: uname });
+      res.send(order);
+    });
+    app.delete("/order", verifyAccess, async (req, res) => {
+      const { id } = req.query;
+      const query = { _id: ObjectId(id) };
+      const result = await orderCollection.deleteOne(query);
+      res.send(result);
+    });
+    app.get("/all-order", verifyAccess, verifyAdmin, async (req, res) => {
+      const orders = await orderCollection.find({}).toArray();
+      res.send(orders);
+    });
+    app.post("/create-payment-intent", verifyAccess, async (req, res) => {
+      const { totalAmount } = req.body;
+      const amount = totalAmount * 100;
 
-  }
-  finally {
+      const paymentIntent = await stripe.paymentIntents.create({
+        amount: amount,
+        currency: "usd",
+        payment_method_types: ["card"],
+      });
+
+      res.send({
+        clientSecret: paymentIntent.client_secret,
+      });
+    });
+  } finally {
   }
 }
 run().catch(console.dir);
 
 app.get("/", (req, res) => {
-  res.send("Webb School.....");
+  res.send("Webb School....");
 });
 
 app.listen(port, () => {
