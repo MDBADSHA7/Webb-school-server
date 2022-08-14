@@ -335,7 +335,7 @@ async function run() {
 run().catch(console.dir);
 
 app.get("/", (req, res) => {
-  res.send("Webb School....");
+  res.send("Webb School...");
 });
 
 app.listen(port, () => {
