@@ -86,6 +86,12 @@ async function run() {
       const AcadamicBook = await cursor.toArray();
       res.send(AcadamicBook);
     });
+
+    app.post("/AcadamicBook", async (req, res) => {
+        const addAcadamicBook = req.body;
+        const result = await webAcadamicBookCollection.insertOne(addAcadamicBook);
+        res.send(result);
+      });
     //===============Bookstore/AcadamicBooks for this code end========
 
     //===============Bookstore/SkillBooksfor this code started-========
@@ -94,6 +100,11 @@ async function run() {
       const cursor = SkillBooksCollection.find(query);
       const SkillBooks = await cursor.toArray();
       res.send(SkillBooks);
+    });
+    app.post("/SkillBooks", async (req, res) => {
+      const addSkillBooks = req.body;
+      const results = await webSkillBooksCollection.insertOne(addSkillBooks);
+      res.send(results);
     });
     //===============Bookstore/SkillBooks for this code end========
 
