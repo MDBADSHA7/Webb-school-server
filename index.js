@@ -181,11 +181,10 @@ async function run() {
       const cursor = jobCollection.find(query);
       const courses = await cursor.toArray();
       res.send(courses);
-    });
-    app.get("/mycourse", async (req, res) => {
-      const query = {};
-      const cursor = paidCourseCollection.find(query);
-      const courses = await cursor.toArray();
+    })
+    app.get("/mycourse", verifyAccess, async (req, res) => {
+      const { email } = req.query;
+      const courses = await paidCourseCollection.find({ userEmail: email }).toArray();
       res.send(courses);
     });
     // courses -End
@@ -352,7 +351,7 @@ async function run() {
 run().catch(console.dir);
 
 app.get("/", (req, res) => {
-  res.send("Webb School....");
+  res.send("Webb School...");
 });
 
 app.listen(port, () => {
