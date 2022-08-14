@@ -4,6 +4,7 @@ const app = express();
 require("dotenv").config();
 const jwt = require("jsonwebtoken");
 const { MongoClient, ServerApiVersion, ObjectId } = require("mongodb");
+const { query } = require("express");
 const port = process.env.PORT || 5000;
 //Midddle Ware
 app.use(cors());
@@ -261,6 +262,16 @@ async function run() {
       const live = await cursor.toArray();
       res.send(live);
     });
+   
+    app.delete('/Lives/:id', async (req, res) => {
+      const id = req.params.id;
+      const query = { _id: ObjectId(id) };
+      const result = await LiveCollection.deleteOne(query)
+      res.send(result);
+    });
+
+    
+
   }
   finally {
   }
