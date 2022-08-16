@@ -53,6 +53,8 @@ async function run() {
       .db("Bookstore")
       .collection("SkillBooks");
     const LiveCollection = client.db("Live").collection("lives");
+    const LiveDataCollection = client.db('Live').collection('liveData');
+
 
     const verifyAdmin = async (req, res, next) => {
       const requester = req.decoded.email;
@@ -278,18 +280,88 @@ async function run() {
       res.send(result);
     });
 
-    /* lIve Class  */
+     /* lIve Class ---------------  */
+     app.get('/LiveData', async (req, res) => {
+      const query = {};
+      const cursor = LiveDataCollection.find(query);
+      const lives = await cursor.toArray();
+      res.send(lives);
+    });
 
-    app.post("/lives", async (req, res) => {
+    app.post('/lives', async (req, res) => {
       const addLive = req.body;
       const result = await LiveCollection.insertOne(addLive);
       res.send(result);
-    });
-    app.get("/Lives", async (req, res) => {
+    })
+    app.get('/Lives', async (req, res) => {
       const query = {};
       const cursor = LiveCollection.find(query);
       const live = await cursor.toArray();
       res.send(live);
+    });
+   
+    app.delete('/Lives/:id', async (req, res) => {
+      const id = req.params.id;
+      const query = { _id: ObjectId(id) };
+      const result = await LiveCollection.deleteOne(query)
+      res.send(result);
+    });
+    
+/* -------------- */
+    app.post("/order", verifyAccess, async (req, res) => {
+      const order = req.body;
+      const result = await orderCollection.insertOne(order);
+      res.send({ success: true, result });
+    });
+    app.get("/order", verifyAccess, async (req, res) => {
+      const { email } = req.query;
+      const orders = await orderCollection.find({ userEmail: email }).toArray();
+      res.send(orders);
+    });
+    app.put("/order", verifyAccess, async (req, res) => {
+      const { orderId, transactionId } = req.body;
+      const filter = { _id: ObjectId(orderId) };
+      const options = { upsert: true };
+      const updateDoc = {
+        $set: {
+          transactionId: transactionId,
+        },
+      };
+      const result = await orderCollection.updateOne(
+        filter,
+        updateDoc,
+        options
+      );
+      res.send({ success: true, result });
+    });
+    app.get("/order/:uname", verifyAccess, async (req, res) => {
+      const { uname } = req.params;
+      const order = await orderCollection.findOne({ uname: uname });
+      res.send(order);
+    });
+    app.delete("/order", verifyAccess, async (req, res) => {
+      const { id } = req.query;
+      const query = { _id: ObjectId(id) };
+      const result = await orderCollection.deleteOne(query);
+      res.send(result);
+    });
+    app.get("/all-order", verifyAccess, verifyAdmin, async (req, res) => {
+      const orders = await orderCollection.find({}).toArray();
+      res.send(orders);
+    });
+    app.post("/create-payment-intent", verifyAccess, async (req, res) => {
+      const { totalAmount } = req.body;
+      const amount = totalAmount * 100;
+
+      const paymentIntent = await stripe.paymentIntents.create({
+        amount: amount,
+        currency: "usd",
+        payment_method_types: ["card"],
+      });
+
+      res.send({
+        clientSecret: paymentIntent.client_secret,
+      });
     });
   } finally {
   }
