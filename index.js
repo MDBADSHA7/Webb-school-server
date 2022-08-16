@@ -41,8 +41,10 @@ async function run() {
     const languageCollection = client.db("courses").collection("language");
     const admissionCollection = client.db("courses").collection("admission");
     const jobCollection = client.db("courses").collection("job");
+    const paidCourseCollection = client.db("courses").collection("paidcourse");
     const playCollection = client.db("Videos").collection("courseplaylist");
     const usersCollection = client.db("users").collection("user");
+    const orderCollection = client.db("Orders").collection("order");
     const webBlogsCollection = client.db("webBlogs").collection("blogs");
     //Acadamic Bookstore for this code ..
     const AcadamicBookCollection = client
@@ -53,8 +55,6 @@ async function run() {
       .db("Bookstore")
       .collection("SkillBooks");
     const LiveCollection = client.db("Live").collection("lives");
-    const LiveDataCollection = client.db('Live').collection('liveData');
-
 
     const verifyAdmin = async (req, res, next) => {
       const requester = req.decoded.email;
@@ -91,10 +91,10 @@ async function run() {
     });
 
     app.post("/AcadamicBook", async (req, res) => {
-        const addAcadamicBook = req.body;
-        const result = await webAcadamicBookCollection.insertOne(addAcadamicBook);
-        res.send(result);
-      });
+      const addblogs = req.body;
+      const result = await AcadamicBookCollection.insertOne(addblogs);
+      res.send(result);
+    });
     //===============Bookstore/AcadamicBooks for this code end========
 
     //===============Bookstore/SkillBooksfor this code started-========
@@ -104,12 +104,8 @@ async function run() {
       const SkillBooks = await cursor.toArray();
       res.send(SkillBooks);
     });
-    app.post("/SkillBooks", async (req, res) => {
-      const addSkillBooks = req.body;
-      const results = await webSkillBooksCollection.insertOne(addSkillBooks);
-      res.send(results);
-    });
     //===============Bookstore/SkillBooks for this code end========
+
     app.put("/user", async (req, res) => {
       const { email, name } = req.body;
       const filter = { email: email };
@@ -210,6 +206,11 @@ async function run() {
       const cursor = jobCollection.find(query);
       const courses = await cursor.toArray();
       res.send(courses);
+    })
+    app.get("/mycourse", verifyAccess, async (req, res) => {
+      const { email } = req.query;
+      const courses = await paidCourseCollection.find({ userEmail: email }).toArray();
+      res.send(courses);
     });
     // courses -End
     app.get("/videos", async (req, res) => {
@@ -279,35 +280,26 @@ async function run() {
       const result = await admissionCollection.insertOne(addadmission);
       res.send(result);
     });
-
-     /* lIve Class ---------------  */
-     app.get('/LiveData', async (req, res) => {
-      const query = {};
-      const cursor = LiveDataCollection.find(query);
-      const lives = await cursor.toArray();
-      res.send(lives);
+    // post paid course 
+    app.post("/mycourse", async (req, res) => {
+      const addadmission = req.body;
+      const result = await paidCourseCollection.insertOne(addadmission);
+      res.send(result);
     });
 
-    app.post('/lives', async (req, res) => {
+    /* lIve Class  */
+
+    app.post("/lives", async (req, res) => {
       const addLive = req.body;
       const result = await LiveCollection.insertOne(addLive);
       res.send(result);
-    })
-    app.get('/Lives', async (req, res) => {
+    });
+    app.get("/Lives", async (req, res) => {
       const query = {};
       const cursor = LiveCollection.find(query);
       const live = await cursor.toArray();
       res.send(live);
     });
-   
-    app.delete('/Lives/:id', async (req, res) => {
-      const id = req.params.id;
-      const query = { _id: ObjectId(id) };
-      const result = await LiveCollection.deleteOne(query)
-      res.send(result);
-    });
-    
-/* -------------- */
     app.post("/order", verifyAccess, async (req, res) => {
       const order = req.body;
       const result = await orderCollection.insertOne(order);
@@ -369,7 +361,7 @@ async function run() {
 run().catch(console.dir);
 
 app.get("/", (req, res) => {
-  res.send("Webb School.....");
+  res.send("Webb School...");
 });
 
 app.listen(port, () => {
