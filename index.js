@@ -4,6 +4,7 @@ const app = express();
 require("dotenv").config();
 const jwt = require("jsonwebtoken");
 const { MongoClient, ServerApiVersion, ObjectId } = require("mongodb");
+const stripe = require("stripe")(process.env.STRIPE_SECRET_KEY);
 const port = process.env.PORT || 5000;
 //Midddle Ware
 app.use(cors());
@@ -161,6 +162,32 @@ async function run() {
       const query = { email: email };
       const user = await usersCollection.findOne(query);
       res.send(user);
+    });
+
+    app.put("/update-user", verifyAccess, async (req, res) => {
+      const { qEmail } = req.query;
+      const { gender, phone, address, facebookLink, instaLink, linkedInLink, education, image, name, coverPhoto, profession, bio } =
+        req.body;
+      const filter = { email: qEmail };
+      const options = { upsert: true };
+      const updateDoc = {
+        $set: {
+          gender: gender,
+          phone: phone,
+          address: address,
+          linkedInLink: linkedInLink,
+          facebookLink: facebookLink,
+          instaLink: instaLink,
+          education: education,
+          coverPhoto: coverPhoto,
+          profession: profession,
+          image: image,
+          name: name,
+          bio: bio,
+        },
+      };
+      const result = await usersCollection.updateOne(filter, updateDoc, options);
+      res.send({ success: true, result });
     });
 
     // courses -Start
