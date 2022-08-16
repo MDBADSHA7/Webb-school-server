@@ -3,7 +3,8 @@ const cors = require("cors");
 const app = express();
 require("dotenv").config();
 const jwt = require("jsonwebtoken");
-const { MongoClient, ServerApiVersion, ObjectId } = require("mongodb");const stripe = require("stripe")(process.env.STRIPE_SECRET_KEY);
+const { MongoClient, ServerApiVersion, ObjectId } = require("mongodb");
+const stripe = require("stripe")(process.env.STRIPE_SECRET_KEY);
 const port = process.env.PORT || 5000;
 //Midddle Ware
 app.use(cors());
@@ -40,10 +41,8 @@ async function run() {
     const languageCollection = client.db("courses").collection("language");
     const admissionCollection = client.db("courses").collection("admission");
     const jobCollection = client.db("courses").collection("job");
-    const paidCourseCollection = client.db("courses").collection("paidcourse");
     const playCollection = client.db("Videos").collection("courseplaylist");
     const usersCollection = client.db("users").collection("user");
-    const orderCollection = client.db("Orders").collection("order");
     const webBlogsCollection = client.db("webBlogs").collection("blogs");
     //Acadamic Bookstore for this code ..
     const AcadamicBookCollection = client
@@ -92,10 +91,10 @@ async function run() {
     });
 
     app.post("/AcadamicBook", async (req, res) => {
-      const addblogs = req.body;
-      const result = await AcadamicBookCollection.insertOne(addblogs);
-      res.send(result);
-    });
+        const addAcadamicBook = req.body;
+        const result = await webAcadamicBookCollection.insertOne(addAcadamicBook);
+        res.send(result);
+      });
     //===============Bookstore/AcadamicBooks for this code end========
 
     //===============Bookstore/SkillBooksfor this code started-========
@@ -105,8 +104,12 @@ async function run() {
       const SkillBooks = await cursor.toArray();
       res.send(SkillBooks);
     });
+    app.post("/SkillBooks", async (req, res) => {
+      const addSkillBooks = req.body;
+      const results = await webSkillBooksCollection.insertOne(addSkillBooks);
+      res.send(results);
+    });
     //===============Bookstore/SkillBooks for this code end========
-
     app.put("/user", async (req, res) => {
       const { email, name } = req.body;
       const filter = { email: email };
@@ -163,6 +166,32 @@ async function run() {
       res.send(user);
     });
 
+    app.put("/update-user", verifyAccess, async (req, res) => {
+      const { qEmail } = req.query;
+      const { gender, phone, address, facebookLink, instaLink, linkedInLink, education, image, name, coverPhoto, profession, bio } =
+        req.body;
+      const filter = { email: qEmail };
+      const options = { upsert: true };
+      const updateDoc = {
+        $set: {
+          gender: gender,
+          phone: phone,
+          address: address,
+          linkedInLink: linkedInLink,
+          facebookLink: facebookLink,
+          instaLink: instaLink,
+          education: education,
+          coverPhoto: coverPhoto,
+          profession: profession,
+          image: image,
+          name: name,
+          bio: bio,
+        },
+      };
+      const result = await usersCollection.updateOne(filter, updateDoc, options);
+      res.send({ success: true, result });
+    });
+
     // courses -Start
     app.get("/language", async (req, res) => {
       const query = {};
@@ -180,11 +209,6 @@ async function run() {
       const query = {};
       const cursor = jobCollection.find(query);
       const courses = await cursor.toArray();
-      res.send(courses);
-    })
-    app.get("/mycourse", verifyAccess, async (req, res) => {
-      const { email } = req.query;
-      const courses = await paidCourseCollection.find({ userEmail: email }).toArray();
       res.send(courses);
     });
     // courses -End
@@ -253,12 +277,6 @@ async function run() {
     app.post("/admission", async (req, res) => {
       const addadmission = req.body;
       const result = await admissionCollection.insertOne(addadmission);
-      res.send(result);
-    });
-    // post paid course 
-    app.post("/mycourse", async (req, res) => {
-      const addadmission = req.body;
-      const result = await paidCourseCollection.insertOne(addadmission);
       res.send(result);
     });
 
@@ -351,7 +369,7 @@ async function run() {
 run().catch(console.dir);
 
 app.get("/", (req, res) => {
-  res.send("Webb School...");
+  res.send("Webb School.....");
 });
 
 app.listen(port, () => {
