@@ -46,6 +46,10 @@ async function run() {
     const usersCollection = client.db("users").collection("user");
     const orderCollection = client.db("Orders").collection("order");
     const webBlogsCollection = client.db("webBlogs").collection("blogs");
+    const LiveCollection = client.db("Live").collection("lives");
+    const LiveDataCollection = client.db('Live').collection('liveData');
+
+
     //Acadamic Bookstore for this code ..
     const AcadamicBookCollection = client
       .db("Bookstore")
@@ -54,7 +58,6 @@ async function run() {
     const SkillBooksCollection = client
       .db("Bookstore")
       .collection("SkillBooks");
-    const LiveCollection = client.db("Live").collection("lives");
 
     const verifyAdmin = async (req, res, next) => {
       const requester = req.decoded.email;
@@ -287,18 +290,31 @@ async function run() {
       res.send(result);
     });
 
-    /* lIve Class  */
+    /* lIve Class ---------------  */
+    app.get('/LiveData', async (req, res) => {
+      const query = {};
+      const cursor = LiveDataCollection.find(query);
+      const lives = await cursor.toArray();
+      res.send(lives);
+    });
 
-    app.post("/lives", async (req, res) => {
+    app.post('/lives', async (req, res) => {
       const addLive = req.body;
       const result = await LiveCollection.insertOne(addLive);
       res.send(result);
-    });
-    app.get("/Lives", async (req, res) => {
+    })
+    app.get('/Lives', async (req, res) => {
       const query = {};
       const cursor = LiveCollection.find(query);
       const live = await cursor.toArray();
       res.send(live);
+    });
+   
+    app.delete('/Lives/:id', async (req, res) => {
+      const id = req.params.id;
+      const query = { _id: ObjectId(id) };
+      const result = await LiveCollection.deleteOne(query)
+      res.send(result);
     });
     app.post("/order", verifyAccess, async (req, res) => {
       const order = req.body;
