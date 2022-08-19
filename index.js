@@ -44,6 +44,7 @@ async function run() {
     const paidCourseCollection = client.db("courses").collection("paidcourse");
     const playCollection = client.db("Videos").collection("courseplaylist");
     const usersCollection = client.db("users").collection("user");
+    const messageCollection = client.db("messages").collection("message");
     const orderCollection = client.db("Orders").collection("order");
     const webBlogsCollection = client.db("webBlogs").collection("blogs");
     //Acadamic Bookstore for this code ..
@@ -130,6 +131,7 @@ async function run() {
       const courses = await usersCollection.findOne(query);
       res.send(courses);
     });
+    
     app.delete("/user/:id", verifyAccess, async (req, res) => {
       const id = req.params.id;
       const query = { _id: ObjectId(id) };
@@ -287,6 +289,24 @@ async function run() {
       res.send(result);
     });
 
+    // message 
+    app.post("/message", verifyAccess, verifyAdmin, async (req, res) => {
+      const addlanguage = req.body;
+      const result = await messageCollection.insertOne(addlanguage);
+      res.send(result);
+    });
+    app.get("/message", verifyAccess, async (req, res) => {
+      const query = {};
+      const cursor = messageCollection.find(query);
+      const message = await cursor.toArray();
+      res.send(message);
+    });
+    app.delete("/message/:id", verifyAccess, async (req, res) => {
+      const id = req.params.id;
+      const query = { _id: ObjectId(id) };
+      const result = await messageCollection.deleteOne(query);
+      res.send(result);
+    });
     /* lIve Class  */
 
     app.post("/lives", async (req, res) => {
