@@ -41,11 +41,13 @@ async function run() {
     const languageCollection = client.db("courses").collection("language");
     const admissionCollection = client.db("courses").collection("admission");
     const jobCollection = client.db("courses").collection("job");
-    const paidCourseCollection = client.db("courses").collection("paidcourse");
     const playCollection = client.db("Videos").collection("courseplaylist");
     const usersCollection = client.db("users").collection("user");
+<<<<<<< HEAD
     const messageCollection = client.db("messages").collection("message");
     const orderCollection = client.db("Orders").collection("order");
+=======
+>>>>>>> 09ab5527aee2c211675f0df60f2ba07151ef856b
     const webBlogsCollection = client.db("webBlogs").collection("blogs");
     //Acadamic Bookstore for this code ..
     const AcadamicBookCollection = client
@@ -92,10 +94,10 @@ async function run() {
     });
 
     app.post("/AcadamicBook", async (req, res) => {
-      const addblogs = req.body;
-      const result = await AcadamicBookCollection.insertOne(addblogs);
-      res.send(result);
-    });
+        const addAcadamicBook = req.body;
+        const result = await webAcadamicBookCollection.insertOne(addAcadamicBook);
+        res.send(result);
+      });
     //===============Bookstore/AcadamicBooks for this code end========
 
     //===============Bookstore/SkillBooksfor this code started-========
@@ -105,8 +107,12 @@ async function run() {
       const SkillBooks = await cursor.toArray();
       res.send(SkillBooks);
     });
+    app.post("/SkillBooks", async (req, res) => {
+      const addSkillBooks = req.body;
+      const results = await webSkillBooksCollection.insertOne(addSkillBooks);
+      res.send(results);
+    });
     //===============Bookstore/SkillBooks for this code end========
-
     app.put("/user", async (req, res) => {
       const { email, name } = req.body;
       const filter = { email: email };
@@ -208,11 +214,6 @@ async function run() {
       const cursor = jobCollection.find(query);
       const courses = await cursor.toArray();
       res.send(courses);
-    })
-    app.get("/mycourse", verifyAccess, async (req, res) => {
-      const { email } = req.query;
-      const courses = await paidCourseCollection.find({ userEmail: email }).toArray();
-      res.send(courses);
     });
     // courses -End
     app.get("/videos", async (req, res) => {
@@ -282,12 +283,6 @@ async function run() {
       const result = await admissionCollection.insertOne(addadmission);
       res.send(result);
     });
-    // post paid course 
-    app.post("/mycourse", async (req, res) => {
-      const addadmission = req.body;
-      const result = await paidCourseCollection.insertOne(addadmission);
-      res.send(result);
-    });
 
     // message 
     app.post("/message", verifyAccess, verifyAdmin, async (req, res) => {
@@ -320,68 +315,13 @@ async function run() {
       const live = await cursor.toArray();
       res.send(live);
     });
-    app.post("/order", verifyAccess, async (req, res) => {
-      const order = req.body;
-      const result = await orderCollection.insertOne(order);
-      res.send({ success: true, result });
-    });
-    app.get("/order", verifyAccess, async (req, res) => {
-      const { email } = req.query;
-      const orders = await orderCollection.find({ userEmail: email }).toArray();
-      res.send(orders);
-    });
-    app.put("/order", verifyAccess, async (req, res) => {
-      const { orderId, transactionId } = req.body;
-      const filter = { _id: ObjectId(orderId) };
-      const options = { upsert: true };
-      const updateDoc = {
-        $set: {
-          transactionId: transactionId,
-        },
-      };
-      const result = await orderCollection.updateOne(
-        filter,
-        updateDoc,
-        options
-      );
-      res.send({ success: true, result });
-    });
-    app.get("/order/:uname", verifyAccess, async (req, res) => {
-      const { uname } = req.params;
-      const order = await orderCollection.findOne({ uname: uname });
-      res.send(order);
-    });
-    app.delete("/order", verifyAccess, async (req, res) => {
-      const { id } = req.query;
-      const query = { _id: ObjectId(id) };
-      const result = await orderCollection.deleteOne(query);
-      res.send(result);
-    });
-    app.get("/all-order", verifyAccess, verifyAdmin, async (req, res) => {
-      const orders = await orderCollection.find({}).toArray();
-      res.send(orders);
-    });
-    app.post("/create-payment-intent", verifyAccess, async (req, res) => {
-      const { totalAmount } = req.body;
-      const amount = totalAmount * 100;
-
-      const paymentIntent = await stripe.paymentIntents.create({
-        amount: amount,
-        currency: "usd",
-        payment_method_types: ["card"],
-      });
-
-      res.send({
-        clientSecret: paymentIntent.client_secret,
-      });
-    });
   } finally {
   }
 }
 run().catch(console.dir);
 
 app.get("/", (req, res) => {
-  res.send("Webb School...");
+  res.send("Webb School.....");
 });
 
 app.listen(port, () => {
