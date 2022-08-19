@@ -43,11 +43,8 @@ async function run() {
     const jobCollection = client.db("courses").collection("job");
     const playCollection = client.db("Videos").collection("courseplaylist");
     const usersCollection = client.db("users").collection("user");
-<<<<<<< HEAD
     const messageCollection = client.db("messages").collection("message");
     const orderCollection = client.db("Orders").collection("order");
-=======
->>>>>>> 09ab5527aee2c211675f0df60f2ba07151ef856b
     const webBlogsCollection = client.db("webBlogs").collection("blogs");
     //Acadamic Bookstore for this code ..
     const AcadamicBookCollection = client
