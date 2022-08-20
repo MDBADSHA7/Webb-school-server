@@ -6,7 +6,7 @@ const jwt = require("jsonwebtoken");
 const { MongoClient, ServerApiVersion, ObjectId } = require("mongodb");
 const stripe = require("stripe")(process.env.STRIPE_SECRET_KEY);
 const port = process.env.PORT || 5000;
-//Midddle Ware
+//Midddle Wares
 app.use(cors());
 app.use(express.json());
 
@@ -311,7 +311,7 @@ async function run() {
       res.send(result);
     });
     /* lIve Class  */
-    /* lIve Class ---------------  */
+    /* lIve Class ------------------  */
     app.get('/LiveData', async (req, res) => {
       const query = {};
       const cursor = LiveDataCollection.find(query);
