@@ -220,9 +220,6 @@ async function run() {
       });
     });
 
-
-
-
     app.get("/job", async (req, res) => {
       const query = {};
       const cursor = jobCollection.find(query);
@@ -417,6 +414,6 @@ app.get("/", (req, res) => {
   res.send("Webb School..");
 });
 
-app.listen(port, () => {
+server.listen(port, () => {
   console.log(`Example app listening on port ${port}`);
 });
