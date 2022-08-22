@@ -2,6 +2,10 @@ const express = require("express");
 const cors = require("cors");
 const app = express();
 require("dotenv").config();
+const server = require("http").createServer(app);
+const io = require('socket.io')(server, {
+
+});
 const jwt = require("jsonwebtoken");
 const { MongoClient, ServerApiVersion, ObjectId } = require("mongodb");
 const stripe = require("stripe")(process.env.STRIPE_SECRET_KEY);
