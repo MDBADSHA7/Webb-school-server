@@ -212,6 +212,17 @@ async function run() {
       const courses = await cursor.toArray();
       res.send(courses);
     });
+
+    // chat 
+    io.on("connection", (socket) => {
+      socket.on("chat", (payload) => {
+        io.emit("chat", payload)
+      });
+    });
+
+
+
+
     app.get("/job", async (req, res) => {
       const query = {};
       const cursor = jobCollection.find(query);
