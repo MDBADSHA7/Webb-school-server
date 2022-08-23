@@ -2,11 +2,18 @@ const express = require("express");
 const cors = require("cors");
 const app = express();
 require("dotenv").config();
+const server = require("http").createServer(app);
+const io = require('socket.io')(server, {
+  cors: {
+    origin: "*"
+  }
+});
 const jwt = require("jsonwebtoken");
 const { MongoClient, ServerApiVersion, ObjectId } = require("mongodb");
+const path = require("path");
 const stripe = require("stripe")(process.env.STRIPE_SECRET_KEY);
 const port = process.env.PORT || 5000;
-//Midddle Wares
+//Midddle War
 app.use(cors());
 app.use(express.json());
 
@@ -83,6 +90,12 @@ async function run() {
       const result = await webBlogsCollection.insertOne(addblogs);
       res.send(result);
     });
+
+
+    app.get("/", function (req,res) {
+      res.sendFile(__dirname+ "/index.html")
+    })
+
 
     //===============blogs for this code Ends here-========
 
@@ -206,6 +219,14 @@ async function run() {
       const courses = await cursor.toArray();
       res.send(courses);
     });
+
+    // chat 
+    io.on("connection", (socket) => {
+      socket.on("chat", (payload) => {
+        io.emit("chat", payload)
+      });
+    });
+
     app.get("/job", async (req, res) => {
       const query = {};
       const cursor = jobCollection.find(query);
@@ -224,7 +245,7 @@ async function run() {
       const videos = await cursor.toArray();
       res.send(videos);
     });
-    // get language id
+    // get language ids
     app.get("/language/:id", async (req, res) => {
       const id = req.params.id;
       const query = { _id: ObjectId(id) };
@@ -400,6 +421,6 @@ app.get("/", (req, res) => {
   res.send("Webb School..");
 });
 
-app.listen(port, () => {
+server.listen(port, () => {
   console.log(`Example app listening on port ${port}`);
 });
