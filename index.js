@@ -10,6 +10,7 @@ const io = require('socket.io')(server, {
 });
 const jwt = require("jsonwebtoken");
 const { MongoClient, ServerApiVersion, ObjectId } = require("mongodb");
+const path = require("path");
 const stripe = require("stripe")(process.env.STRIPE_SECRET_KEY);
 const port = process.env.PORT || 5000;
 //Midddle War
@@ -89,6 +90,12 @@ async function run() {
       const result = await webBlogsCollection.insertOne(addblogs);
       res.send(result);
     });
+
+
+    app.get("/", function (req,res) {
+      res.sendFile(__dirname+ "/index.html")
+    })
+
 
     //===============blogs for this code Ends here-========
 
@@ -238,7 +245,7 @@ async function run() {
       const videos = await cursor.toArray();
       res.send(videos);
     });
-    // get language id
+    // get language ids
     app.get("/language/:id", async (req, res) => {
       const id = req.params.id;
       const query = { _id: ObjectId(id) };
