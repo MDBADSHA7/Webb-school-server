@@ -1,8 +1,5 @@
 const express = require("express");
 const cors = require("cors");
-//JWT Start
-const jwt = require('jsonwebtoken');
-//JWT End
 require("dotenv").config();
 const { MongoClient, ServerApiVersion, ObjectId } = require("mongodb");
 const app = express();
@@ -12,7 +9,8 @@ app.use(cors());
 app.use(express.json());
 
 //MongoDB Connected
-const uri = `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASSWORD}@cluster0.lqv7isf.mongodb.net/?retryWrites=true&w=majority`;
+const uri = `mongodb://${process.env.DB_USER}:${process.env.DB_PASSWORD}@ac-3lraqhp-shard-00-00.lqv7isf.mongodb.net:27017,ac-3lraqhp-shard-00-01.lqv7isf.mongodb.net:27017,ac-3lraqhp-shard-00-02.lqv7isf.mongodb.net:27017/?ssl=true&replicaSet=atlas-rwv3eh-shard-0&authSource=admin&retryWrites=true&w=majority`;
+
 
 const client = new MongoClient(uri, {
     useNewUrlParser: true,
@@ -22,7 +20,6 @@ const client = new MongoClient(uri, {
 
 async function run() {
     try {
-
         await client.connect();
         const languageCollection = client.db("courses").collection("language");
         const admissionCollection = client.db("courses").collection("admission");
@@ -33,26 +30,8 @@ async function run() {
         const AcadamicBookCollection = client.db('Bookstore').collection('AcadamicBook');
         //Skill Bookstore for this code...
         const SkillBooksCollection = client.db('Bookstore').collection('SkillBooks');
-        //User Collection for JWT
-        const userCollection = client.db('user_info').collection('users');
-
-        //JWT Verification Start
-        app.put('/user/:email', async (req, res) => {
-            const email = req.params.email;
-            const user = req.body;
-            const filter = { email: email };
-            const options = { upsert: true };
-            const updateDoc = {
-                $set: user,
-            };
-            const result = await userCollection.updateOne(filter, updateDoc, options);
-            const token = jwt.sign({ email: email }, process.env.ACCESS_TOKEN_SECRET, {
-                expiresIn: '1h'
-            })
-            res.send({ result, token });
-        })
-
-        //JWT Verification End
+        const LiveCollection = client.db('Live').collection('lives');
+        const LiveDataCollection = client.db('Live').collection('liveData');
 
         //===============blogs for this code started-========
         app.get('/blogs', async (req, res) => {
@@ -68,10 +47,7 @@ async function run() {
 
         })
 
-
-
         //===============blogs for this code Ends here-========
-
 
         //===============Bookstore/AcadamicBooks for this code started-========
         app.get('/AcadamicBook', async (req, res) => {
@@ -80,13 +56,6 @@ async function run() {
             const AcadamicBook = await cursor.toArray();
             res.send(AcadamicBook);
         });
-        //Acadamic books add
-        app.post('/AcadamicBook', async (req, res) => {
-            const addAcadamicBook = req.body;
-            const result = await AcadamicBookCollection.insertOne(addAcadamicBook);
-            res.send(result);
-
-        })
         //===============Bookstore/AcadamicBooks for this code end========
 
         //===============Bookstore/SkillBooksfor this code started-========
@@ -167,6 +136,26 @@ async function run() {
             const result = await jobCollection.deleteOne(query);
             res.send(result);
         });
+
+        /* lIve Class  */
+        app.get('/LiveData', async (req, res) => {
+            const query = {};
+            const cursor = LiveDataCollection.find(query);
+            const live = await cursor.toArray();
+            res.send(live);
+        });
+
+        app.post('/lives', async (req, res) => {
+            const addLive = req.body;
+            const result = await LiveCollection.insertOne(addLive);
+            res.send(result);
+        })
+        app.get('/Lives', async (req, res) => {
+            const query = {};
+            const cursor = LiveCollection.find(query);
+            const live = await cursor.toArray();
+            res.send(live);
+        });
     }
 
     finally {
@@ -177,11 +166,12 @@ async function run() {
 run().catch(console.dir);
 
 app.get('/', (req, res) => {
-    res.send('Webb School......')
+    res.send('Webb School Server......')
 })
 
 app.listen(port, () => {
     console.log(`Example app listening on port ${port}`)
 })
+
 
 
