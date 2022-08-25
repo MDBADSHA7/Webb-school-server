@@ -2,11 +2,18 @@ const express = require("express");
 const cors = require("cors");
 const app = express();
 require("dotenv").config();
+const server = require("http").createServer(app);
+const io = require('socket.io')(server, {
+  cors: {
+    origin: "*"
+  }
+});
 const jwt = require("jsonwebtoken");
 const { MongoClient, ServerApiVersion, ObjectId } = require("mongodb");
+const path = require("path");
 const stripe = require("stripe")(process.env.STRIPE_SECRET_KEY);
 const port = process.env.PORT || 5000;
-//Midddle Ware
+//Midddle War
 app.use(cors());
 app.use(express.json());
 
@@ -48,6 +55,10 @@ async function run() {
     const orderCollection = client.db("Orders").collection("order");
     const webBlogsCollection = client.db("webBlogs").collection("blogs");
     const courseReviewCollection = client.db("reviews").collection("coursereviews");
+    const LiveCollection = client.db("Live").collection("lives");
+    const LiveDataCollection = client.db('Live').collection('liveData');
+
+
     //Acadamic Bookstore for this code ..
     const AcadamicBookCollection = client
       .db("Bookstore")
@@ -56,7 +67,6 @@ async function run() {
     const SkillBooksCollection = client
       .db("Bookstore")
       .collection("SkillBooks");
-    const LiveCollection = client.db("Live").collection("lives");
 
     const verifyAdmin = async (req, res, next) => {
       const requester = req.decoded.email;
@@ -81,6 +91,12 @@ async function run() {
       const result = await webBlogsCollection.insertOne(addblogs);
       res.send(result);
     });
+
+
+    app.get("/", function (req,res) {
+      res.sendFile(__dirname+ "/index.html")
+    })
+
 
     //===============blogs for this code Ends here-========
 
@@ -204,6 +220,14 @@ async function run() {
       const courses = await cursor.toArray();
       res.send(courses);
     });
+
+    // chat 
+    io.on("connection", (socket) => {
+      socket.on("chat", (payload) => {
+        io.emit("chat", payload)
+      });
+    });
+
     app.get("/job", async (req, res) => {
       const query = {};
       const cursor = jobCollection.find(query);
@@ -222,7 +246,7 @@ async function run() {
       const videos = await cursor.toArray();
       res.send(videos);
     });
-    // get language id
+    // get language ids
     app.get("/language/:id", async (req, res) => {
       const id = req.params.id;
       const query = { _id: ObjectId(id) };
@@ -309,17 +333,30 @@ async function run() {
       res.send(result);
     });
     /* lIve Class  */
-
-    app.post("/lives", async (req, res) => {
+    /* lIve Class ------------------  */
+    app.get('/LiveData', async (req, res) => {
+      const query = {};
+      const cursor = LiveDataCollection.find(query);
+      const lives = await cursor.toArray();
+      res.send(lives);
+    });
+    app.post('/lives', async (req, res) => {
       const addLive = req.body;
       const result = await LiveCollection.insertOne(addLive);
       res.send(result);
-    });
-    app.get("/Lives", async (req, res) => {
+    })
+    app.get('/Lives', async (req, res) => {
       const query = {};
       const cursor = LiveCollection.find(query);
       const live = await cursor.toArray();
       res.send(live);
+    });
+   
+    app.delete('/Lives/:id', async (req, res) => {
+      const id = req.params.id;
+      const query = { _id: ObjectId(id) };
+      const result = await LiveCollection.deleteOne(query)
+      res.send(result);
     });
     app.post("/order", verifyAccess, async (req, res) => {
       const order = req.body;
@@ -393,9 +430,9 @@ async function run() {
 run().catch(console.dir);
 
 app.get("/", (req, res) => {
-  res.send("Webb School...");
+  res.send("Webb School..");
 });
 
-app.listen(port, () => {
+server.listen(port, () => {
   console.log(`Example app listening on port ${port}`);
 });
