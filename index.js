@@ -332,8 +332,8 @@ async function run() {
       const result = await messageCollection.deleteOne(query);
       res.send(result);
     });
-    /* lIve Class  */
-    /* lIve Class ------------------  */
+    /* live Class  */
+    /* live Class ------------------  */
     app.get('/LiveData', async (req, res) => {
       const query = {};
       const cursor = LiveDataCollection.find(query);
