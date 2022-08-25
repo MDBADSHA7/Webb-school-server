@@ -54,6 +54,7 @@ async function run() {
     const messageCollection = client.db("messages").collection("message");
     const orderCollection = client.db("Orders").collection("order");
     const webBlogsCollection = client.db("webBlogs").collection("blogs");
+    const courseReviewCollection = client.db("reviews").collection("coursereviews");
     const LiveCollection = client.db("Live").collection("lives");
     const LiveDataCollection = client.db('Live').collection('liveData');
 
@@ -397,6 +398,17 @@ async function run() {
     app.get("/all-order", verifyAccess, verifyAdmin, async (req, res) => {
       const orders = await orderCollection.find({}).toArray();
       res.send(orders);
+    });
+    // add reviews 
+    app.post("/reviews", verifyAccess, async (req, res) => {
+      const addreview = req.body;
+      const result = await courseReviewCollection.insertOne(addreview);
+      res.send(result);
+    });
+    // get reviews 
+    app.get("/reviews", async (req, res) => {
+      const reviews = await courseReviewCollection.find({}).toArray();
+      res.send(reviews);
     });
     app.post("/create-payment-intent", verifyAccess, async (req, res) => {
       const { totalAmount } = req.body;
