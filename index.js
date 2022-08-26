@@ -320,7 +320,7 @@ async function run() {
       const result = await messageCollection.insertOne(addlanguage);
       res.send(result);
     });
-    app.get("/message", verifyAccess, async (req, res) => {
+    app.get("/message", async (req, res) => {
       const query = {};
       const cursor = messageCollection.find(query);
       const message = await cursor.toArray();
