@@ -222,7 +222,7 @@ async function run() {
     });
 
     // chat 
-    io.on("/connection", (socket) => {
+    io.on("connection", (socket) => {
       socket.on("chat", (payload) => {
         io.emit("chat", payload)
       });
