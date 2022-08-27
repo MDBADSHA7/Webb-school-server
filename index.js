@@ -56,6 +56,7 @@ async function run() {
     const webBlogsCollection = client.db("webBlogs").collection("blogs");
     const LiveCollection = client.db("Live").collection("lives");
     const LiveDataCollection = client.db('Live').collection('liveData');
+    const chatDataCollection = client.db('chatData').collection('chat');
 
 
     //Acadamic Bookstore for this code ..
@@ -91,12 +92,14 @@ async function run() {
       res.send(result);
     });
 
+   
+
 
     app.get("/", function (req,res) {
       res.sendFile(__dirname+ "/index.html")
     })
 
-    
+
 
 
     //===============blogs for this code Ends here-========
