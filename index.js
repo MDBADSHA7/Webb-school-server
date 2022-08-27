@@ -92,7 +92,11 @@ async function run() {
       res.send(result);
     });
 
-   
+    app.post("/chat", async (req, res) => {
+      const addchat = req.body;
+      const result = await chatDataCollection.insertOne(addchat);
+      res.send(result);
+    });
 
 
     app.get("/", function (req,res) {
