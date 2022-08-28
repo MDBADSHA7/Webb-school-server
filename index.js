@@ -49,24 +49,20 @@ async function run() {
     const admissionCollection = client.db("courses").collection("admission");
     const jobCollection = client.db("courses").collection("job");
     const paidCourseCollection = client.db("courses").collection("paidcourse");
+    const paidBooksCollection = client.db("Bookstore").collection("paidbooks");
     const playCollection = client.db("Videos").collection("courseplaylist");
     const usersCollection = client.db("users").collection("user");
     const messageCollection = client.db("messages").collection("message");
     const orderCollection = client.db("Orders").collection("order");
     const webBlogsCollection = client.db("webBlogs").collection("blogs");
+    const courseReviewCollection = client.db("reviews").collection("coursereviews");
+    const bookReviewCollection = client.db("reviews").collection("bookreviews");
     const LiveCollection = client.db("Live").collection("lives");
     const LiveDataCollection = client.db('Live').collection('liveData');
+    const AcadamicBookCollection = client.db("Bookstore").collection("AcadamicBook");
+    const SkillBooksCollection = client.db("Bookstore").collection("SkillBooks");
+    const AudioBookCollection = client.db("Bookstore").collection("AudioBook");
     const chatDataCollection = client.db('chatData').collection('chat');
-
-
-    //Acadamic Bookstore for this code ..
-    const AcadamicBookCollection = client
-      .db("Bookstore")
-      .collection("AcadamicBook");
-    //Skill Bookstore for this code...
-    const SkillBooksCollection = client
-      .db("Bookstore")
-      .collection("SkillBooks");
 
     const verifyAdmin = async (req, res, next) => {
       const requester = req.decoded.email;
@@ -104,8 +100,6 @@ async function run() {
     })
 
 
-
-
     //===============blogs for this code Ends here-========
 
     //===============Bookstore/AcadamicBooks for this code started-========
@@ -129,6 +123,22 @@ async function run() {
       const cursor = SkillBooksCollection.find(query);
       const SkillBooks = await cursor.toArray();
       res.send(SkillBooks);
+    });
+    app.get("/audiobook", async (req, res) => {
+      const query = {};
+      const cursor = AudioBookCollection.find(query);
+      const SkillBooks = await cursor.toArray();
+      res.send(SkillBooks);
+    });
+    app.post("/mybooks", async (req, res) => {
+      const paidbooks = req.body;
+      const result = await paidBooksCollection.insertOne(paidbooks);
+      res.send(result);
+    });
+    app.get("/mybooks", verifyAccess, async (req, res) => {
+      const { email } = req.query;
+      const books = await paidBooksCollection.find({ userEmail: email }).toArray();
+      res.send(books);
     });
     //===============Bookstore/SkillBooks for this code end========
 
@@ -222,13 +232,63 @@ async function run() {
       const courses = await cursor.toArray();
       res.send(courses);
     });
+
+//  GOOGLE MEET LINK UPDATED ------------------------------------------>
+
+    // Language update
+    app.put("/language/:id", async (req, res) => {
+      const { id } = req.params;
+      const  meetLink  = req.body;
+
+      const filter = { _id: ObjectId(id) };
+      const options = {upsert: true}
+      const updateDoc = {
+        $set: {
+          meetLink: meetLink,
+        },
+      };
+      const result = await languageCollection.updateOne(filter, updateDoc, options);
+      res.send({ success: true, result });
+    });
+    // admission update
+    app.put("/admission/:id", async (req, res) => {
+      const { id } = req.params;
+      const  meetLink  = req.body;
+
+      const filter = { _id: ObjectId(id) };
+      const options = {upsert: true}
+      const updateDoc = {
+        $set: {
+          meetLink: meetLink,
+        },
+      };
+      const result = await admissionCollection  .updateOne(filter, updateDoc, options);
+      res.send({ success: true, result });
+    });
+    // job update
+    app.put("/job/:id", async (req, res) => {
+      const { id } = req.params;
+      const  meetLink  = req.body;
+
+      const filter = { _id: ObjectId(id) };
+      const options = {upsert: true}
+      const updateDoc = {
+        $set: {
+          meetLink: meetLink,
+        },
+      };
+      const result = await jobCollection.updateOne(filter, updateDoc, options);
+      res.send({ success: true, result });
+    });
+  
+
     app.get("/admission", async (req, res) => {
       const query = {};
       const cursor = admissionCollection.find(query);
       const courses = await cursor.toArray();
       res.send(courses);
     });
-
+  // GOOGLE MEET LINK END ------------------------------------->
     // chat 
     io.on("connection", (socket) => {
       socket.on("chat", (payload) => {
@@ -275,6 +335,12 @@ async function run() {
       const courses = await admissionCollection.findOne(query);
       res.send(courses);
     });
+
+
+  
+
+
+
     // delete admission courses
     app.delete("/admission/:id", async (req, res) => {
       const id = req.params.id;
@@ -328,7 +394,7 @@ async function run() {
       const result = await messageCollection.insertOne(addlanguage);
       res.send(result);
     });
-    app.get("/message", verifyAccess, async (req, res) => {
+    app.get("/message", async (req, res) => {
       const query = {};
       const cursor = messageCollection.find(query);
       const message = await cursor.toArray();
@@ -340,8 +406,8 @@ async function run() {
       const result = await messageCollection.deleteOne(query);
       res.send(result);
     });
-    /* lIve Class  */
-    /* lIve Class ------------------  */
+    /* live Class  */
+    /* live Class ------------------  */
     app.get('/LiveData', async (req, res) => {
       const query = {};
       const cursor = LiveDataCollection.find(query);
@@ -406,6 +472,26 @@ async function run() {
     app.get("/all-order", verifyAccess, verifyAdmin, async (req, res) => {
       const orders = await orderCollection.find({}).toArray();
       res.send(orders);
+    });
+    // add reviews 
+    app.post("/reviews", verifyAccess, async (req, res) => {
+      const addreview = req.body;
+      const result = await courseReviewCollection.insertOne(addreview);
+      res.send(result);
+    });
+    app.post("/bookreviews", verifyAccess, async (req, res) => {
+      const addreview = req.body;
+      const result = await bookReviewCollection.insertOne(addreview);
+      res.send(result);
+    });
+    // get reviews 
+    app.get("/reviews", async (req, res) => {
+      const reviews = await courseReviewCollection.find({}).toArray();
+      res.send(reviews);
+    });
+    app.get("/bookreviews", async (req, res) => {
+      const reviews = await bookReviewCollection.find({}).toArray();
+      res.send(reviews);
     });
     app.post("/create-payment-intent", verifyAccess, async (req, res) => {
       const { totalAmount } = req.body;
