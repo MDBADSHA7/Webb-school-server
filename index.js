@@ -94,8 +94,8 @@ async function run() {
 
     app.post("/chat", async (req, res) => {
       const addchat = req.body;
-      const result = await chatDataCollection.insertOne(addchat);
-      res.send(result);
+      const chatresult = await chatDataCollection.insertOne(addchat);
+      res.send(chatresult);
     });
 
 
