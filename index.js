@@ -225,13 +225,63 @@ async function run() {
       const courses = await cursor.toArray();
       res.send(courses);
     });
+
+//  GOOGLE MEET LINK UPDATED ------------------------------------------>
+
+    // Language update
+    app.put("/language/:id", async (req, res) => {
+      const { id } = req.params;
+      const  meetLink  = req.body;
+
+      const filter = { _id: ObjectId(id) };
+      const options = {upsert: true}
+      const updateDoc = {
+        $set: {
+          meetLink: meetLink,
+        },
+      };
+      const result = await languageCollection.updateOne(filter, updateDoc, options);
+      res.send({ success: true, result });
+    });
+    // admission update
+    app.put("/admission/:id", async (req, res) => {
+      const { id } = req.params;
+      const  meetLink  = req.body;
+
+      const filter = { _id: ObjectId(id) };
+      const options = {upsert: true}
+      const updateDoc = {
+        $set: {
+          meetLink: meetLink,
+        },
+      };
+      const result = await admissionCollection  .updateOne(filter, updateDoc, options);
+      res.send({ success: true, result });
+    });
+    // job update
+    app.put("/job/:id", async (req, res) => {
+      const { id } = req.params;
+      const  meetLink  = req.body;
+
+      const filter = { _id: ObjectId(id) };
+      const options = {upsert: true}
+      const updateDoc = {
+        $set: {
+          meetLink: meetLink,
+        },
+      };
+      const result = await jobCollection.updateOne(filter, updateDoc, options);
+      res.send({ success: true, result });
+    });
+  
+
     app.get("/admission", async (req, res) => {
       const query = {};
       const cursor = admissionCollection.find(query);
       const courses = await cursor.toArray();
       res.send(courses);
     });
-
+  // GOOGLE MEET LINK END ------------------------------------->
     // chat 
     io.on("connection", (socket) => {
       socket.on("chat", (payload) => {
@@ -278,6 +328,12 @@ async function run() {
       const courses = await admissionCollection.findOne(query);
       res.send(courses);
     });
+
+
+  
+
+
+
     // delete admission courses
     app.delete("/admission/:id", async (req, res) => {
       const id = req.params.id;
@@ -343,8 +399,8 @@ async function run() {
       const result = await messageCollection.deleteOne(query);
       res.send(result);
     });
-    /* lIve Class  */
-    /* lIve Class ------------------  */
+    /* live Class  */
+    /* live Class ------------------  */
     app.get('/LiveData', async (req, res) => {
       const query = {};
       const cursor = LiveDataCollection.find(query);
