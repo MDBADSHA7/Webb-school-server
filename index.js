@@ -63,6 +63,7 @@ async function run() {
     const AcadamicBookCollection = client.db("Bookstore").collection("AcadamicBook");
     const SkillBooksCollection = client.db("Bookstore").collection("SkillBooks");
     const AudioBookCollection = client.db("Bookstore").collection("AudioBook");
+    const chatDataCollection = client.db('chatData').collection('chat');
 
     const verifyAdmin = async (req, res, next) => {
       const requester = req.decoded.email;
@@ -86,6 +87,12 @@ async function run() {
       const addblogs = req.body;
       const result = await webBlogsCollection.insertOne(addblogs);
       res.send(result);
+    });
+
+    app.post("/chat", async (req, res) => {
+      const addchat = req.body;
+      const chatresult = await chatDataCollection.insertOne(addchat);
+      res.send(chatresult);
     });
 
 
