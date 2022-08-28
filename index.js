@@ -56,6 +56,7 @@ async function run() {
     const orderCollection = client.db("Orders").collection("order");
     const webBlogsCollection = client.db("webBlogs").collection("blogs");
     const courseReviewCollection = client.db("reviews").collection("coursereviews");
+    const bookReviewCollection = client.db("reviews").collection("bookreviews");
     const LiveCollection = client.db("Live").collection("lives");
     const LiveDataCollection = client.db('Live').collection('liveData');
     const AcadamicBookCollection = client.db("Bookstore").collection("AcadamicBook");
@@ -126,6 +127,11 @@ async function run() {
       const paidbooks = req.body;
       const result = await paidBooksCollection.insertOne(paidbooks);
       res.send(result);
+    });
+    app.get("/mybooks", verifyAccess, async (req, res) => {
+      const { email } = req.query;
+      const books = await paidBooksCollection.find({ userEmail: email }).toArray();
+      res.send(books);
     });
     //===============Bookstore/SkillBooks for this code end========
 
@@ -410,9 +416,18 @@ async function run() {
       const result = await courseReviewCollection.insertOne(addreview);
       res.send(result);
     });
+    app.post("/bookreviews", verifyAccess, async (req, res) => {
+      const addreview = req.body;
+      const result = await bookReviewCollection.insertOne(addreview);
+      res.send(result);
+    });
     // get reviews 
     app.get("/reviews", async (req, res) => {
       const reviews = await courseReviewCollection.find({}).toArray();
+      res.send(reviews);
+    });
+    app.get("/bookreviews", async (req, res) => {
+      const reviews = await bookReviewCollection.find({}).toArray();
       res.send(reviews);
     });
     app.post("/create-payment-intent", verifyAccess, async (req, res) => {
