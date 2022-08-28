@@ -49,24 +49,19 @@ async function run() {
     const admissionCollection = client.db("courses").collection("admission");
     const jobCollection = client.db("courses").collection("job");
     const paidCourseCollection = client.db("courses").collection("paidcourse");
+    const paidBooksCollection = client.db("Bookstore").collection("paidbooks");
     const playCollection = client.db("Videos").collection("courseplaylist");
     const usersCollection = client.db("users").collection("user");
     const messageCollection = client.db("messages").collection("message");
     const orderCollection = client.db("Orders").collection("order");
     const webBlogsCollection = client.db("webBlogs").collection("blogs");
     const courseReviewCollection = client.db("reviews").collection("coursereviews");
+    const bookReviewCollection = client.db("reviews").collection("bookreviews");
     const LiveCollection = client.db("Live").collection("lives");
     const LiveDataCollection = client.db('Live').collection('liveData');
-
-
-    //Acadamic Bookstore for this code ..
-    const AcadamicBookCollection = client
-      .db("Bookstore")
-      .collection("AcadamicBook");
-    //Skill Bookstore for this code...
-    const SkillBooksCollection = client
-      .db("Bookstore")
-      .collection("SkillBooks");
+    const AcadamicBookCollection = client.db("Bookstore").collection("AcadamicBook");
+    const SkillBooksCollection = client.db("Bookstore").collection("SkillBooks");
+    const AudioBookCollection = client.db("Bookstore").collection("AudioBook");
 
     const verifyAdmin = async (req, res, next) => {
       const requester = req.decoded.email;
@@ -121,6 +116,22 @@ async function run() {
       const cursor = SkillBooksCollection.find(query);
       const SkillBooks = await cursor.toArray();
       res.send(SkillBooks);
+    });
+    app.get("/audiobook", async (req, res) => {
+      const query = {};
+      const cursor = AudioBookCollection.find(query);
+      const SkillBooks = await cursor.toArray();
+      res.send(SkillBooks);
+    });
+    app.post("/mybooks", async (req, res) => {
+      const paidbooks = req.body;
+      const result = await paidBooksCollection.insertOne(paidbooks);
+      res.send(result);
+    });
+    app.get("/mybooks", verifyAccess, async (req, res) => {
+      const { email } = req.query;
+      const books = await paidBooksCollection.find({ userEmail: email }).toArray();
+      res.send(books);
     });
     //===============Bookstore/SkillBooks for this code end========
 
@@ -461,9 +472,18 @@ async function run() {
       const result = await courseReviewCollection.insertOne(addreview);
       res.send(result);
     });
+    app.post("/bookreviews", verifyAccess, async (req, res) => {
+      const addreview = req.body;
+      const result = await bookReviewCollection.insertOne(addreview);
+      res.send(result);
+    });
     // get reviews 
     app.get("/reviews", async (req, res) => {
       const reviews = await courseReviewCollection.find({}).toArray();
+      res.send(reviews);
+    });
+    app.get("/bookreviews", async (req, res) => {
+      const reviews = await bookReviewCollection.find({}).toArray();
       res.send(reviews);
     });
     app.post("/create-payment-intent", verifyAccess, async (req, res) => {
