@@ -49,6 +49,7 @@ async function run() {
     const admissionCollection = client.db("courses").collection("admission");
     const jobCollection = client.db("courses").collection("job");
     const paidCourseCollection = client.db("courses").collection("paidcourse");
+    const specialCourseCollection = client.db("courses").collection("special");
     const paidBooksCollection = client.db("Bookstore").collection("paidbooks");
     const playCollection = client.db("Videos").collection("courseplaylist");
     const usersCollection = client.db("users").collection("user");
@@ -307,6 +308,18 @@ async function run() {
       const courses = await paidCourseCollection.find({ userEmail: email }).toArray();
       res.send(courses);
     });
+    app.get("/special", async (req, res) => {
+      const query = {};
+      const cursor = specialCourseCollection.find(query);
+      const courses = await cursor.toArray();
+      res.send(courses);
+    });
+    app.delete("/special/:id", async (req, res) => {
+      const id = req.params.id;
+      const query = { _id: ObjectId(id) };
+      const result = await specialCourseCollection.deleteOne(query);
+      res.send(result);
+    });
     // courses -End
     app.get("/videos", async (req, res) => {
       const query = {};
@@ -385,6 +398,11 @@ async function run() {
     app.post("/mycourse", async (req, res) => {
       const addadmission = req.body;
       const result = await paidCourseCollection.insertOne(addadmission);
+      res.send(result);
+    });
+    app.post("/special", async (req, res) => {
+      const addadmission = req.body;
+      const result = await specialCourseCollection.insertOne(addadmission);
       res.send(result);
     });
 
