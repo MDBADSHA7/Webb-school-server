@@ -49,6 +49,7 @@ async function run() {
     const admissionCollection = client.db("courses").collection("admission");
     const jobCollection = client.db("courses").collection("job");
     const paidCourseCollection = client.db("courses").collection("paidcourse");
+    const paidBooksCollection = client.db("Bookstore").collection("paidbooks");
     const playCollection = client.db("Videos").collection("courseplaylist");
     const usersCollection = client.db("users").collection("user");
     const messageCollection = client.db("messages").collection("message");
@@ -57,16 +58,9 @@ async function run() {
     const courseReviewCollection = client.db("reviews").collection("coursereviews");
     const LiveCollection = client.db("Live").collection("lives");
     const LiveDataCollection = client.db('Live').collection('liveData');
-
-
-    //Acadamic Bookstore for this code ..
-    const AcadamicBookCollection = client
-      .db("Bookstore")
-      .collection("AcadamicBook");
-    //Skill Bookstore for this code...
-    const SkillBooksCollection = client
-      .db("Bookstore")
-      .collection("SkillBooks");
+    const AcadamicBookCollection = client.db("Bookstore").collection("AcadamicBook");
+    const SkillBooksCollection = client.db("Bookstore").collection("SkillBooks");
+    const AudioBookCollection = client.db("Bookstore").collection("AudioBook");
 
     const verifyAdmin = async (req, res, next) => {
       const requester = req.decoded.email;
@@ -121,6 +115,17 @@ async function run() {
       const cursor = SkillBooksCollection.find(query);
       const SkillBooks = await cursor.toArray();
       res.send(SkillBooks);
+    });
+    app.get("/audiobook", async (req, res) => {
+      const query = {};
+      const cursor = AudioBookCollection.find(query);
+      const SkillBooks = await cursor.toArray();
+      res.send(SkillBooks);
+    });
+    app.post("/mybooks", async (req, res) => {
+      const paidbooks = req.body;
+      const result = await paidBooksCollection.insertOne(paidbooks);
+      res.send(result);
     });
     //===============Bookstore/SkillBooks for this code end========
 
