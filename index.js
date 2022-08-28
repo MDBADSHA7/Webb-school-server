@@ -94,6 +94,13 @@ async function run() {
       res.send(chatresult);
     });
 
+    app.get("/chat/:id", async (req, res) => {
+      const id = req.params.id;
+    
+    });
+
+
+
 
     app.get("/", function (req,res) {
       res.sendFile(__dirname+ "/index.html")
