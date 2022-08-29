@@ -510,7 +510,16 @@ async function run() {
       res.send(orders);
     });
     // add reviews 
-    
+    app.post("/reviews", verifyAccess, async (req, res) => {
+      const addreview = req.body;
+      const result = await courseReviewCollection.insertOne(addreview);
+      res.send(result);
+    });
+    app.post("/bookreviews", verifyAccess, async (req, res) => {
+      const addreview = req.body;
+      const result = await bookReviewCollection.insertOne(addreview);
+      res.send(result);
+    });
     // get reviews 
     app.get("/reviews", async (req, res) => {
       const reviews = await courseReviewCollection.find({}).toArray();
