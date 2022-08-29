@@ -56,6 +56,7 @@ async function run() {
     const messageCollection = client.db("messages").collection("message");
     const orderCollection = client.db("Orders").collection("order");
     const webBlogsCollection = client.db("webBlogs").collection("blogs");
+    const allreviewCollection = client.db("reviews").collection("allreviews");
     const courseReviewCollection = client.db("reviews").collection("coursereviews");
     const bookReviewCollection = client.db("reviews").collection("bookreviews");
     const LiveCollection = client.db("Live").collection("lives");
@@ -403,6 +404,23 @@ async function run() {
     app.post("/special", async (req, res) => {
       const addadmission = req.body;
       const result = await specialCourseCollection.insertOne(addadmission);
+      res.send(result);
+    });
+    app.post("/allreviews", async (req, res) => {
+      const addadmission = req.body;
+      const result = await allreviewCollection.insertOne(addadmission);
+      res.send(result);
+    });
+    app.get("/allreviews", async (req, res) => {
+      const query = {};
+      const cursor = allreviewCollection.find(query);
+      const courses = await cursor.toArray();
+      res.send(courses);
+    });
+    app.delete("/allreviews/:id", async (req, res) => {
+      const id = req.params.id;
+      const query = { _id: ObjectId(id) };
+      const result = await allreviewCollection.deleteOne(query);
       res.send(result);
     });
 
