@@ -3,10 +3,10 @@ const cors = require("cors");
 const app = express();
 require("dotenv").config();
 const server = require("http").createServer(app);
-const io = require('socket.io')(server, {
+const io = require("socket.io")(server, {
   cors: {
-    origin: "*"
-  }
+    origin: "*",
+  },
 });
 const jwt = require("jsonwebtoken");
 const { MongoClient, ServerApiVersion, ObjectId } = require("mongodb");
@@ -19,7 +19,6 @@ app.use(express.json());
 
 //MongoDB Connected
 const uri = `mongodb://${process.env.DB_USER}:${process.env.DB_PASSWORD}@ac-3lraqhp-shard-00-00.lqv7isf.mongodb.net:27017,ac-3lraqhp-shard-00-01.lqv7isf.mongodb.net:27017,ac-3lraqhp-shard-00-02.lqv7isf.mongodb.net:27017/?ssl=true&replicaSet=atlas-rwv3eh-shard-0&authSource=admin&retryWrites=true&w=majority`;
-
 
 const client = new MongoClient(uri, {
   useNewUrlParser: true,
@@ -57,25 +56,32 @@ async function run() {
     const orderCollection = client.db("Orders").collection("order");
     const webBlogsCollection = client.db("webBlogs").collection("blogs");
     const allreviewCollection = client.db("reviews").collection("allreviews");
-    const courseReviewCollection = client.db("reviews").collection("coursereviews");
+    const courseReviewCollection = client
+      .db("reviews")
+      .collection("coursereviews");
     const bookReviewCollection = client.db("reviews").collection("bookreviews");
     const LiveCollection = client.db("Live").collection("lives");
-    const LiveDataCollection = client.db('Live').collection('liveData');
-    const AcadamicBookCollection = client.db("Bookstore").collection("AcadamicBook");
-    const SkillBooksCollection = client.db("Bookstore").collection("SkillBooks");
+    const LiveDataCollection = client.db("Live").collection("liveData");
+    const AcadamicBookCollection = client
+      .db("Bookstore")
+      .collection("AcadamicBook");
+    const SkillBooksCollection = client
+      .db("Bookstore")
+      .collection("SkillBooks");
     const AudioBookCollection = client.db("Bookstore").collection("AudioBook");
-    const chatDataCollection = client.db('chatData').collection('chat');
+    const chatDataCollection = client.db("chatData").collection("chat");
 
     const verifyAdmin = async (req, res, next) => {
       const requester = req.decoded.email;
-      const requesterAccount = await usersCollection.findOne({ email: requester });
-      if (requesterAccount.role === 'admin') {
+      const requesterAccount = await usersCollection.findOne({
+        email: requester,
+      });
+      if (requesterAccount.role === "admin") {
         next();
+      } else {
+        res.status(403).send({ message: "forbidden" });
       }
-      else {
-        res.status(403).send({ message: 'forbidden' });
-      }
-    }
+    };
 
     //===============blogs for this code started-========
     app.get("/blogs", async (req, res) => {
@@ -96,11 +102,9 @@ async function run() {
       res.send(chatresult);
     });
 
-
-    app.get("/", function (req,res) {
-      res.sendFile(__dirname+ "/index.html")
-    })
-
+    app.get("/", function (req, res) {
+      res.sendFile(__dirname + "/index.html");
+    });
 
     //===============blogs for this code Ends here-========
 
@@ -139,7 +143,9 @@ async function run() {
     });
     app.get("/mybooks", verifyAccess, async (req, res) => {
       const { email } = req.query;
-      const books = await paidBooksCollection.find({ userEmail: email }).toArray();
+      const books = await paidBooksCollection
+        .find({ userEmail: email })
+        .toArray();
       res.send(books);
     });
     //===============Bookstore/SkillBooks for this code end========
@@ -154,7 +160,11 @@ async function run() {
           email: email,
         },
       };
-      const result = await usersCollection.updateOne(filter, updateDoc, options);
+      const result = await usersCollection.updateOne(
+        filter,
+        updateDoc,
+        options
+      );
       const token = jwt.sign({ email: email }, process.env.ACCESS_TOKEN_SECRET);
       res.send({ success: true, result, token });
     });
@@ -168,7 +178,7 @@ async function run() {
       const courses = await usersCollection.findOne(query);
       res.send(courses);
     });
-    
+
     app.delete("/user/:id", verifyAccess, async (req, res) => {
       const id = req.params.id;
       const query = { _id: ObjectId(id) };
@@ -203,8 +213,20 @@ async function run() {
 
     app.put("/update-user", verifyAccess, async (req, res) => {
       const { qEmail } = req.query;
-      const { gender, phone, address, facebookLink, instaLink, linkedInLink, education, image, name, coverPhoto, profession, bio } =
-        req.body;
+      const {
+        gender,
+        phone,
+        address,
+        facebookLink,
+        instaLink,
+        linkedInLink,
+        education,
+        image,
+        name,
+        coverPhoto,
+        profession,
+        bio,
+      } = req.body;
       const filter = { email: qEmail };
       const options = { upsert: true };
       const updateDoc = {
@@ -223,7 +245,11 @@ async function run() {
           bio: bio,
         },
       };
-      const result = await usersCollection.updateOne(filter, updateDoc, options);
+      const result = await usersCollection.updateOne(
+        filter,
+        updateDoc,
+        options
+      );
       res.send({ success: true, result });
     });
 
@@ -235,45 +261,53 @@ async function run() {
       res.send(courses);
     });
 
-//  GOOGLE MEET LINK UPDATED ------------------------------------------>
+    //  GOOGLE MEET LINK UPDATED ------------------------------------------>
 
     // Language update
     app.put("/language/:id", async (req, res) => {
       const { id } = req.params;
-      const  meetLink  = req.body;
+      const meetLink = req.body;
 
       const filter = { _id: ObjectId(id) };
-      const options = {upsert: true}
+      const options = { upsert: true };
       const updateDoc = {
         $set: {
           meetLink: meetLink,
         },
       };
-      const result = await languageCollection.updateOne(filter, updateDoc, options);
+      const result = await languageCollection.updateOne(
+        filter,
+        updateDoc,
+        options
+      );
       res.send({ success: true, result });
     });
     // admission update
     app.put("/admission/:id", async (req, res) => {
       const { id } = req.params;
-      const  meetLink  = req.body;
+      const meetLink = req.body;
 
       const filter = { _id: ObjectId(id) };
-      const options = {upsert: true}
+      const options = { upsert: true };
       const updateDoc = {
         $set: {
           meetLink: meetLink,
         },
       };
-      const result = await admissionCollection  .updateOne(filter, updateDoc, options);
+      const result = await admissionCollection.updateOne(
+        filter,
+        updateDoc,
+        options
+      );
       res.send({ success: true, result });
     });
     // job update
     app.put("/job/:id", async (req, res) => {
       const { id } = req.params;
-      const  meetLink  = req.body;
+      const meetLink = req.body;
 
       const filter = { _id: ObjectId(id) };
-      const options = {upsert: true}
+      const options = { upsert: true };
       const updateDoc = {
         $set: {
           meetLink: meetLink,
@@ -282,7 +316,6 @@ async function run() {
       const result = await jobCollection.updateOne(filter, updateDoc, options);
       res.send({ success: true, result });
     });
-  
 
     app.get("/admission", async (req, res) => {
       const query = {};
@@ -290,11 +323,11 @@ async function run() {
       const courses = await cursor.toArray();
       res.send(courses);
     });
-  // GOOGLE MEET LINK END ------------------------------------->
-    // chat 
+    // GOOGLE MEET LINK END ------------------------------------->
+    // chat
     io.on("connection", (socket) => {
       socket.on("chat", (payload) => {
-        io.emit("chat", payload)
+        io.emit("chat", payload);
       });
     });
 
@@ -303,10 +336,12 @@ async function run() {
       const cursor = jobCollection.find(query);
       const courses = await cursor.toArray();
       res.send(courses);
-    })
+    });
     app.get("/mycourse", verifyAccess, async (req, res) => {
       const { email } = req.query;
-      const courses = await paidCourseCollection.find({ userEmail: email }).toArray();
+      const courses = await paidCourseCollection
+        .find({ userEmail: email })
+        .toArray();
       res.send(courses);
     });
     app.get("/special", async (req, res) => {
@@ -350,11 +385,6 @@ async function run() {
       res.send(courses);
     });
 
-
-  
-
-
-
     // delete admission courses
     app.delete("/admission/:id", async (req, res) => {
       const id = req.params.id;
@@ -395,12 +425,23 @@ async function run() {
       const result = await admissionCollection.insertOne(addadmission);
       res.send(result);
     });
-    // post paid course 
+    // post paid course
     app.post("/mycourse", async (req, res) => {
       const addadmission = req.body;
       const result = await paidCourseCollection.insertOne(addadmission);
       res.send(result);
     });
+    app.put("/mycourse/:id", async (req, res) => {
+      const { id } = req.params;
+      const progress = req.body;
+
+      const filter = { _id: ObjectId(id) };
+      const options = { upsert: true };
+      const updateDoc = { $push: { progress  } };
+      const result = await paidCourseCollection.updateOne(filter, updateDoc, options);
+      res.send({ success: true, result });
+    });
+
     app.post("/special", async (req, res) => {
       const addadmission = req.body;
       const result = await specialCourseCollection.insertOne(addadmission);
@@ -424,7 +465,7 @@ async function run() {
       res.send(result);
     });
 
-    // message 
+    // message
     app.post("/message", verifyAccess, verifyAdmin, async (req, res) => {
       const addlanguage = req.body;
       const result = await messageCollection.insertOne(addlanguage);
@@ -444,28 +485,28 @@ async function run() {
     });
     /* live Class  */
     /* live Class ------------------  */
-    app.get('/LiveData', async (req, res) => {
+    app.get("/LiveData", async (req, res) => {
       const query = {};
       const cursor = LiveDataCollection.find(query);
       const lives = await cursor.toArray();
       res.send(lives);
     });
-    app.post('/lives', async (req, res) => {
+    app.post("/lives", async (req, res) => {
       const addLive = req.body;
       const result = await LiveCollection.insertOne(addLive);
       res.send(result);
-    })
-    app.get('/Lives', async (req, res) => {
+    });
+    app.get("/Lives", async (req, res) => {
       const query = {};
       const cursor = LiveCollection.find(query);
       const live = await cursor.toArray();
       res.send(live);
     });
-   
-    app.delete('/Lives/:id', async (req, res) => {
+
+    app.delete("/Lives/:id", async (req, res) => {
       const id = req.params.id;
       const query = { _id: ObjectId(id) };
-      const result = await LiveCollection.deleteOne(query)
+      const result = await LiveCollection.deleteOne(query);
       res.send(result);
     });
     app.post("/order", verifyAccess, async (req, res) => {
@@ -499,6 +540,7 @@ async function run() {
       const order = await orderCollection.findOne({ uname: uname });
       res.send(order);
     });
+
     app.delete("/order", verifyAccess, async (req, res) => {
       const { id } = req.query;
       const query = { _id: ObjectId(id) };
@@ -509,7 +551,7 @@ async function run() {
       const orders = await orderCollection.find({}).toArray();
       res.send(orders);
     });
-    // add reviews 
+    // add reviews
     app.post("/reviews", verifyAccess, async (req, res) => {
       const addreview = req.body;
       const result = await courseReviewCollection.insertOne(addreview);
@@ -520,7 +562,7 @@ async function run() {
       const result = await bookReviewCollection.insertOne(addreview);
       res.send(result);
     });
-    // get reviews 
+    // get reviews
     app.get("/reviews", async (req, res) => {
       const reviews = await courseReviewCollection.find({}).toArray();
       res.send(reviews);
