@@ -337,7 +337,7 @@ async function run() {
       const courses = await cursor.toArray();
       res.send(courses);
     });
-    app.get("/mycourse", verifyAccess, async (req, res) => {
+    app.get("/mycourse", async (req, res) => {
       const { email } = req.query;
       const courses = await paidCourseCollection
         .find({ userEmail: email })
