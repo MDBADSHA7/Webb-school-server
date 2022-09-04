@@ -441,6 +441,16 @@ async function run() {
       const result = await paidCourseCollection.updateOne(filter, updateDoc, options);
       res.send({ success: true, result });
     });
+    app.put("/certificate/:id", async (req, res) => {
+      const { id } = req.params;
+      const certificate = req.body;
+
+      const filter = { _id: ObjectId(id) };
+      const options = { upsert: true };
+      const updateDoc = { $set: { certificate  } };
+      const result = await paidCourseCollection.updateOne(filter, updateDoc, options);
+      res.send({ success: true, result });
+    });
 
     app.post("/special", async (req, res) => {
       const addadmission = req.body;
