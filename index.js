@@ -121,6 +121,11 @@ async function run() {
       const result = await AcadamicBookCollection.insertOne(addblogs);
       res.send(result);
     });
+    app.post("/SkillBooks", async (req, res) => {
+      const addblogs = req.body;
+      const result = await SkillBooksCollection.insertOne(addblogs);
+      res.send(result);
+    });
     //===============Bookstore/AcadamicBooks for this code end========
 
     //===============Bookstore/SkillBooksfor this code started-========
@@ -437,8 +442,12 @@ async function run() {
 
       const filter = { _id: ObjectId(id) };
       const options = { upsert: true };
-      const updateDoc = { $push: { progress  } };
-      const result = await paidCourseCollection.updateOne(filter, updateDoc, options);
+      const updateDoc = { $push: { progress } };
+      const result = await paidCourseCollection.updateOne(
+        filter,
+        updateDoc,
+        options
+      );
       res.send({ success: true, result });
     });
     app.put("/certificate/:id", async (req, res) => {
@@ -447,8 +456,12 @@ async function run() {
 
       const filter = { _id: ObjectId(id) };
       const options = { upsert: true };
-      const updateDoc = { $set: { certificate  } };
-      const result = await paidCourseCollection.updateOne(filter, updateDoc, options);
+      const updateDoc = { $set: { certificate } };
+      const result = await paidCourseCollection.updateOne(
+        filter,
+        updateDoc,
+        options
+      );
       res.send({ success: true, result });
     });
 
